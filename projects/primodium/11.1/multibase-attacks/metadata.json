@@ -1,0 +1,24 @@
+{
+    "version": "1.0.0",
+    "name": "Multibase attacks",    
+    "description": "Launch attacks from multiple bases simultaneously.",
+    "category": "Attack, Fleet",
+    "imageUrl": "",
+    "formFields": [
+		{
+            "id": "attackAsteroidEntity",
+            "type": "text",
+            "label": "Asteroid Entity",            
+            "placeholder": "Please enter asteroid to attack",
+            "required": true
+        },
+        {
+            "id": "baseOwnerAddress",
+            "type": "text",
+            "label": "Base Owner Address",            
+            "placeholder": "Please enter your base owner address",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

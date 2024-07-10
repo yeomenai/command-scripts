@@ -1,0 +1,33 @@
+{
+    "version": "1.0.0",
+    "name": "War machine",    
+    "description": "Automatically upgrade hangars and produce new batches of units to fill the space when you have the needed resources.",
+    "category": "Upgrade, Units, Hangar, Drone Factory, Workshop",
+    "imageUrl": "",
+    "formFields": [    
+        {
+            "id": "asteroidEntity",
+            "type": "text",
+            "label": "Asteroid Entity",            
+            "placeholder": "Please enter your asteroid",
+            "required": true
+        },
+        {
+            "id": "trainUnits",
+            "type": "checkboxgroup",
+            "label": "Train Units",            
+            "placeholder": "",
+            "required": false,
+            "options": ["AegisDrone", "AnvilDrone", "HammerDrone", "StingerDrone", "MinutemanMarine", "TridentMarine"]
+        },
+        {
+            "id": "delay",
+            "type": "text",
+            "label": "Delay (seconds) on each upgrade and train units",            
+            "placeholder": "Please enter delay in seconds",
+            "required": true,
+            "value": 10
+        }
+    ],
+    "mainScript": "index.js"
+}

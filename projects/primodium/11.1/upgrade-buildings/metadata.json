@@ -1,0 +1,25 @@
+{
+    "version": "1.0.0",
+    "name": "Upgrade Buildings",    
+    "description": "Automatically upgrade buildings as soon as you have the required resources needed.",
+    "category": "Upgrade, Buildings, Resources",
+    "imageUrl": "",
+    "formFields": [    
+        {
+            "id": "asteroidEntity",
+            "type": "text",
+            "label": "Asteroid Entity",            
+            "placeholder": "Please enter your asteroid",
+            "required": true
+        },
+        {
+            "id": "delay",
+            "type": "text",
+            "label": "Delay (seconds) on each upgrade",            
+            "placeholder": "Please enter delay in seconds",
+            "required": true,
+            "value": 10
+        }
+    ],
+    "mainScript": "index.js"
+}

@@ -1,0 +1,31 @@
+{
+    "version": "1.0.0",
+    "name": "Move and Load Resources",    
+    "description": "Sample codes to Move fleet and Load Resources from asteroid",
+    "category": "Move, Resources, Fleet",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "pickupAsteroidEntity",
+            "type": "text",
+            "label": "Pickup Asteroid Entity",            
+            "placeholder": "Please enter your pickup asteroid",
+            "required": true
+        },
+        {
+            "id": "dropoffAsteroidEntity",
+            "type": "text",
+            "label": "Dropoff Asteroid Entity",            
+            "placeholder": "Please enter your dropoff asteroid",
+            "required": true
+        },
+        {
+            "id": "fleetEntity",
+            "type": "text",
+            "label": "Fleet Entity",            
+            "placeholder": "Please enter your fleet",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

@@ -1,0 +1,25 @@
+{
+    "version": "1.0.0",
+    "name": "Upgrade & Expand Base",    
+    "description": "Automatically upgrade and/or expand your base when you reach the resources you need to do so.",
+    "category": "Upgrade, Buildings, Resources, Expand, Base",
+    "imageUrl": "",
+    "formFields": [    
+        {
+            "id": "asteroidEntity",
+            "type": "text",
+            "label": "Asteroid Entity",            
+            "placeholder": "Please enter your asteroid",
+            "required": true
+        },
+		{
+            "id": "delay",
+            "type": "text",
+            "label": "Delay (seconds) on each upgrade and expand",            
+            "placeholder": "Please enter delay in seconds",
+            "required": true,
+            "value": 10
+        }
+    ],
+    "mainScript": "index.js"
+}

@@ -1,0 +1,24 @@
+{
+    "version": "1.0.0",
+    "name": "Continuous bombardment",    
+    "description": "Using a fleet to continuously bombard an enemy asteroid. This is useful for Capital Ships looking to take over a planet.",
+    "category": "Attack, Fleet",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "asteroidEntity",
+            "type": "text",
+            "label": "Asteroid Entity",            
+            "placeholder": "Please enter asteroid to attack",
+            "required": true
+        },
+        {
+            "id": "fleetEntity",
+            "type": "text",
+            "label": "Fleet Entity",            
+            "placeholder": "Please enter your fleet",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

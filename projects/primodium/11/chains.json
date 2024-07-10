@@ -1,0 +1,31 @@
+[
+{
+  "id": 10017,
+  "name": "Caldera Sepolia",
+  "network": "caldera-sepolia",
+  "description": "Caldera Sepolia",
+  "nativeCurrency": {
+    "decimals": 18,
+    "name": "Holesky Ether",
+    "symbol": "ETH"
+  },
+  "rpcUrls": {
+    "default": {
+      "http": ["https://primodium-sepolia.rpc.caldera.xyz/http"],
+      "webSocket": ["wss://primodium-sepolia.rpc.caldera.xyz/ws"]
+    },
+    "public": {
+      "http": ["https://primodium-sepolia.rpc.caldera.xyz/http"],
+      "webSocket": ["wss://primodium-sepolia.rpc.caldera.xyz/ws"]
+    }
+  },
+  "blockExplorers": {
+    "default": {
+      "name": "Sepolia",
+      "url": "https://primodium-sepolia.explorer.caldera.xyz"
+    }
+  },
+  "indexerUrl": "https://mud_indexer_primodium.yeomen.ai",
+  "testnet": true
+}
+]

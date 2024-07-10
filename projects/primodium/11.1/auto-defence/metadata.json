@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "name": "Auto defence",    
+    "description": "When an attack is detected, send a defense fleet from the nearest available asteroid to your asteroid.",
+    "category": "Attack, Fleet",
+    "imageUrl": "",
+    "formFields": [		
+        {
+            "id": "ownerAddress",
+            "type": "text",
+            "label": "Owner Address",            
+            "placeholder": "Please enter your owner address",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}
