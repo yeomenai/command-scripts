@@ -13,6 +13,13 @@ const simulateGame = async () => {
         try {
 
             YeomenAI.statusMessage('Running code script started');
+
+            if (resourcePickupAsteroid == resourceDropoffAsteroid) {
+                YeomenAI.statusMessage(`Pickup and Dropoff Asteroids should be different`, YeomenAI.MESSAGE_TYPES.ERROR);
+                YeomenAI.exit(1);
+                return;
+            }
+
             //Get Fleet's Current Position and details
             const fleetMovement = await PrimodiumYeomen.getFleetMovement(fleetEntity);
             if (!fleetMovement) {
@@ -21,14 +28,18 @@ const simulateGame = async () => {
                 return;
             }
 
+
             const sourceAsteroidEntity = fleetMovement.destination.replace(/\\x/g, '0x');
             const destinationAsteroidEntity = asteroidEntities.find((asteroidEntity) => asteroidEntity !== sourceAsteroidEntity);
 
             //Load resources   
             let maxResources = {
-                [PrimodiumYeomen.RESOURCES.IRON]: 10,
-                [PrimodiumYeomen.RESOURCES.COPPER]: 20,
-                [PrimodiumYeomen.RESOURCES.LITHIUM]: 6
+                [PrimodiumYeomen.RESOURCES.IRON]: 20000,
+                [PrimodiumYeomen.RESOURCES.COPPER]: 20000,
+                [PrimodiumYeomen.RESOURCES.LITHIUM]: 20000,
+                [PrimodiumYeomen.RESOURCES.IRON_PLATE]: 20000,
+                [PrimodiumYeomen.RESOURCES.ALLOY]: 20000,
+                [PrimodiumYeomen.RESOURCES.PV_CELL]: 20000
             };
             const loadResources = await PrimodiumYeomen.getAsteroidToFleetLoadResources(resourcePickupAsteroid, fleetEntity, maxResources);
             console.log('loadResources', loadResources);

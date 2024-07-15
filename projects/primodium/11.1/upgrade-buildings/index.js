@@ -22,6 +22,28 @@ const simulateGame = async () => {
             //YeomenAI.statusMessage(`Retrieved owned entities: ${asteroidOwnedEntities.length} found`);
 
             let mainBaseEntity;
+            
+            //Identify Mainbase start
+            for (const asteroidOwnedEntity of asteroidOwnedEntities) {
+                 const buldingEntity = asteroidOwnedEntity.entity.replace(/\\x/g, '0x');
+                 const buildingTypeRecord = await PrimodiumYeomen.getBuildingType(buldingEntity);
+                if (!buildingTypeRecord) {
+                    continue;
+                }
+                const buildingType = WorkerUtils.hexToUtf8(buildingTypeRecord.value);
+                const buildingTypeHex = buildingTypeRecord.value;              
+               
+                if (buildingType == 'MainBase') {
+                    mainBaseEntity = buldingEntity;                   
+                }
+            }
+            
+            if(!mainBaseEntity){
+                YeomenAI.statusMessage('MainBase not found', YeomenAI.MESSAGE_TYPES.ERROR);
+                YeomenAI.exit(1);
+            }
+            //Identify Mainbase end
+            
             for (const asteroidOwnedEntity of asteroidOwnedEntities) {
                 const buldingEntity = asteroidOwnedEntity.entity.replace(/\\x/g, '0x');
                 //YeomenAI.statusMessage(`Processing building entity: ${buldingEntity}`);
