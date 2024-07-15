@@ -1,0 +1,18 @@
+{
+    "version": "1.0.0",
+    "name": "Claim Primodium",    
+    "description": "Streamline the process of claiming Primodium, resources, Shard Asteroid Points, units, and objectives.",
+    "category": "Claim, Primodium, Resources, Units, Objectives",
+    "imageUrl": "",
+    "formFields": [           
+        {
+            "id": "delay",
+            "type": "text",
+            "label": "Delay (seconds) on each claim",            
+            "placeholder": "Please enter delay in seconds",
+            "required": true,
+            "value": 10
+        }
+    ],
+    "mainScript": "index.js"
+}

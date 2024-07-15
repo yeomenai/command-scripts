@@ -63,6 +63,28 @@ const PrimodiumYeomen = {
         ALLOY: 9,
         PV_CELL: 10
     },
+     /**
+     * Asynchronous function to get asteroid.
+     * @param {string} entity Entity ID.
+     * @returns {Promise<Object|null>} Asteroid data.
+     */
+    getAsteroid: async function (entity) {
+        entity = entity.replace(/(0x|\\x)/g, '\\\\x');
+        const asteroidData = await YeomenAI.getQueryData(`
+        query GetAsteroid {
+          ${this.SCHEMA}pri_11__asteroid(where: {entity: {_eq: "${entity}"}}) {
+            entity
+            is_asteroid
+            max_level
+            map_id
+            spawns_secondary
+            wormhole
+            primodium
+          }
+        }`);
+        const asteroid = asteroidData[`${this.SCHEMA}pri_11__asteroid`][0] || null;
+        return asteroid;
+    },
     /**
      * Asynchronous function to get units data.
      * @returns {Promise<Array>} Units data.
@@ -238,16 +260,21 @@ const PrimodiumYeomen = {
      * @returns {Promise<Array>} Loaded resources.
      */
     getAsteroidToFleetLoadResources: async function (asteroidEntity, fleetEntity, maxResources) {
-        const fleetCargoCapacity = await this.getFleetCargoCapacity(fleetEntity);
+        let fleetCargoCapacity = await this.getFleetCargoCapacity(fleetEntity);
+        fleetCargoCapacity = fleetCargoCapacity ? fleetCargoCapacity - (10 * Math.pow(10, 18)) : null;//Dont use max space
         //console.log(fleetCargoCapacity);
 
-        let availableFleetCargoCapacity = fleetCargoCapacity;
+        //let availableFleetCargoCapacity = fleetCargoCapacity;
 
         const pickupAsteroidResourcesCount = await this.getResourcesCount(asteroidEntity);
         //console.log(pickupAsteroidResourcesCount);
 
         const fleetResourcesCount = await this.getResourcesCount(fleetEntity);
         //console.log(fleetResourcesCount);
+
+        let currentFleetCargoCapacity = fleetResourcesCount.reduce((sum, fleetResourceCount) => sum + fleetResourceCount.value, 0);
+        let availableFleetCargoCapacity = fleetCargoCapacity - currentFleetCargoCapacity;
+        console.log('availableFleetCargoCapacity', availableFleetCargoCapacity)
 
         //Calculate allocation proportion
         let totalMaxResources = Object.values(maxResources).reduce((sum, value) => sum + value, 0);
@@ -280,25 +307,25 @@ const PrimodiumYeomen = {
 
             const loadResource = Math.max(maxResourcesAllocation[resourceId] * Math.pow(10, 18) - (fleetResourceCount ? fleetResourceCount.value : 0), 0);
 
-            loadResources[resourceId - 1] = Math.min(pickupAsteroidResourceCount.value, loadResource);
-
+            loadResources[resourceId - 1] = Math.min(pickupAsteroidResourceCount.value, loadResource, availableFleetCargoCapacity);
+            availableFleetCargoCapacity = availableFleetCargoCapacity - loadResources[resourceId - 1];
         }
-        //console.log('fleetCargoCapacity', fleetCargoCapacity / Math.pow(10, 18));
-//        console.log('pickupAsteroidResourcesCount', pickupAsteroidResourcesCount.map(pickupAsteroidResourceCount => {
-//            return {
-//                resource: pickupAsteroidResourceCount.resource,
-//                value: pickupAsteroidResourceCount.value / Math.pow(10, 18)
-//            };
-//        }));
-//        console.log('fleetResourcesCount', fleetResourcesCount.map(fleetResourceCount => {
-//            return {
-//                resource: fleetResourceCount.resource,
-//                value: fleetResourceCount.value / Math.pow(10, 18)
-//            };
-//        }));
-        //console.log('maxResources', maxResources);
-        //console.log('maxResourcesAllocation', maxResourcesAllocation);
-        //console.log('loadResources', loadResources.map((loadResource) => Math.max(loadResource / Math.pow(10, 18), 0)));
+        console.log('fleetCargoCapacity', fleetCargoCapacity / Math.pow(10, 18));
+        console.log('pickupAsteroidResourcesCount', JSON.stringify(pickupAsteroidResourcesCount.map(pickupAsteroidResourceCount => {
+            return {
+                resource: pickupAsteroidResourceCount.resource,
+                value: pickupAsteroidResourceCount.value / Math.pow(10, 18)
+            };
+        })));
+        console.log('fleetResourcesCount', JSON.stringify(fleetResourcesCount.map(fleetResourceCount => {
+            return {
+                resource: fleetResourceCount.resource,
+                value: fleetResourceCount.value / Math.pow(10, 18)
+            };
+        })));
+        console.log('maxResources', maxResources);
+        console.log('maxResourcesAllocation', maxResourcesAllocation);
+        console.log('loadResources', loadResources.map((loadResource) => Math.max(loadResource / Math.pow(10, 18), 0)));
         return loadResources;
     },
     /**
@@ -659,25 +686,25 @@ const PrimodiumYeomen = {
             const productionRateResource = entityProductionRates.find((r) => {
                 return r.resource === resource;
             });
-            const productionRate = productionRateResource ? productionRateResource.value  : 0;
+            const productionRate = productionRateResource ? productionRateResource.value : 0;
 
             const consumptionRateResource = entityConsumptionRates.find((r) => {
                 return r.resource === resource;
             });
-            const consumptionRate = consumptionRateResource ? consumptionRateResource.value  : 0;
+            const consumptionRate = consumptionRateResource ? consumptionRateResource.value : 0;
 
             const producedValue = timeDiff * productionRate;
             const consumptionValue = timeDiff * consumptionRate;
 
-            const totalValue = Math.floor((currentResourceValue + producedValue - consumptionValue) );
+            const totalValue = Math.floor((currentResourceValue + producedValue - consumptionValue));
             const cappedTotalValue = Math.min(totalValue, maxResourceValue);
 
             return {
-                resource,               
+                resource,
                 amount: cappedTotalValue,
             };
         });
-        
+
         return availableResources
     },
     /**
@@ -717,6 +744,25 @@ const PrimodiumYeomen = {
                 `);
         const consumptionRates = consumptionRatesData[`${this.SCHEMA}pri_11__consumption_rate`] || [];
         return consumptionRates;
+    },
+     /**
+     * Asynchronous function to get shard asteroid.
+     * @param {string} entity Entity ID.
+     * @returns {Promise<Object|null>} Shard Asteroid data.
+     */
+    getShardAsteroid: async function (entity) {
+        entity = entity.replace(/(0x|\\x)/g, '\\\\x');
+        const shardAsteroidData = await YeomenAI.getQueryData(`
+        query GetShardAsteroid {
+          ${this.SCHEMA}pri_11__shard_asteroid(where: {entity: {_eq: "${entity}"}}) {
+            entity
+            is_shard_asteroid
+            distance_from_center
+            spawn_time
+          }
+        }`);
+        const shardAsteroid = shardAsteroidData[`${this.SCHEMA}pri_11__shard_asteroid`][0] || null;
+        return shardAsteroid;
     },
     /**
      * Asynchronous function to get cooldown end.
