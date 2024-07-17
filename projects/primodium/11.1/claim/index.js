@@ -1,5 +1,5 @@
-//const asteroidEntity = formFields['asteroidEntity'];
 const delay = formFields['delay'];
+const ClaimObjectiveSystemId = PrimodiumYeomen.SYSTEMS.ClaimObjectiveSy;
 const ClaimPrimodiumSystemId = PrimodiumYeomen.SYSTEMS.ClaimPrimodiumSy;
 const ClaimSystemId = PrimodiumYeomen.SYSTEMS.S_ClaimSystem;
 
@@ -7,8 +7,8 @@ const simulateGame = async () => {
     do {
         try {
             YeomenAI.statusMessage('Running code script started');
-            
-            if(!YeomenAI.ACCOUNT){
+
+            if (!YeomenAI.ACCOUNT) {
                 YeomenAI.statusMessage('Please reload command');
                 YeomenAI.exit(0);
             }
@@ -20,6 +20,30 @@ const simulateGame = async () => {
 
             for (const ownedAsteroidEntity of ownedAsteroidEntities) {
                 const asteroidEntity = ownedAsteroidEntity.entity.replace(/\\x/g, '0x');
+                
+                //Claim objectives
+                YeomenAI.statusMessage(`Check if Claim Objectives are available`);
+                const enumToPrototypes = await PrimodiumYeomen.getEnumToPrototypes();
+                for (const enumToPrototype of enumToPrototypes) {
+                    const enumToPrototypeKeyText = WorkerUtils.hexToUtf8(enumToPrototype.key);
+                    const enumToPrototypeValueText = WorkerUtils.hexToUtf8(enumToPrototype.value);
+                    if (enumToPrototypeKeyText != 'Objectives')
+                        continue;
+
+                    try {
+                        await YeomenAI.estimateContractGas('claimObjective', [asteroidEntity, enumToPrototype.id], ClaimObjectiveSystemId);
+                        try {
+                            await YeomenAI.sendTransaction('claimObjective', [asteroidEntity, enumToPrototype.id], ClaimObjectiveSystemId);
+                            YeomenAI.statusMessage(`Successfully Claimed Objective ${enumToPrototypeValueText}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
+                        } catch (err) {
+                            YeomenAI.statusMessage(`Failed to Claim Objective: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
+                        }
+                    } catch (err) {
+                    }
+                }
+
+
+
                 YeomenAI.statusMessage(`Check if Claim Primodium is available`);
                 const asteroid = await PrimodiumYeomen.getAsteroid(asteroidEntity);
                 if (asteroid && asteroid.primodium > 0) {

@@ -15,6 +15,21 @@ const simulateGame = async () => {
             const asteroidOwnedEntities = await PrimodiumYeomen.getOwnedEntities(asteroidEntity);
             console.log(asteroidOwnedEntities)
 
+            //Find out total building types
+            let totalBuildingTypes = {};
+            for (const asteroidOwnedEntity of asteroidOwnedEntities) {
+                const buldingEntity = asteroidOwnedEntity.entity.replace(/\\x/g, '0x');
+                const buildingTypeRecord = await PrimodiumYeomen.getBuildingType(buldingEntity);
+                if (!buildingTypeRecord) {
+                    continue;
+                }
+                const buildingType = WorkerUtils.hexToUtf8(buildingTypeRecord.value);
+                const buildingTypeHex = buildingTypeRecord.value;
+
+
+                totalBuildingTypes[buildingType] = (totalBuildingTypes[buildingType] || 0) + 1;
+            }
+
             //Upgrade and train
             let mainBaseEntity;
             for (const asteroidOwnedEntity of asteroidOwnedEntities) {
@@ -87,16 +102,18 @@ const simulateGame = async () => {
                         });
 
                         const maxTrainUnits = Math.min(...trainUnitsPerResource);
+                        const trainUnitsCount = maxTrainUnits && totalBuildingTypes[buildingType]
+                                ? maxTrainUnits / totalBuildingTypes[buildingType]
+                                : 0;
 
-
-                        if (maxTrainUnits) {
-                            console.log(buildingType, buildingLevel, trainUnit, maxTrainUnits, 'ready to train')
+                        if (trainUnitsCount) {
+                            console.log(buildingType, buildingLevel, trainUnit, trainUnitsCount, 'ready to train')
                             try {
-                                YeomenAI.statusMessage(`Train Units ${maxTrainUnits} ${trainUnit} in Level ${buildingLevel}`);
-                                await YeomenAI.sendTransaction('trainUnits', [buildingEntity, unitRef, maxTrainUnits], TrainUnitsSystemId);
-                                YeomenAI.statusMessage(`Successfully trained units ${maxTrainUnits} ${trainUnit} in Level ${buildingLevel}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
+                                YeomenAI.statusMessage(`Train Units ${trainUnitsCount} ${trainUnit} in Level ${buildingLevel}`);
+                                await YeomenAI.sendTransaction('trainUnits', [buildingEntity, unitRef, trainUnitsCount], TrainUnitsSystemId);
+                                YeomenAI.statusMessage(`Successfully trained units ${trainUnitsCount} ${trainUnit} in Level ${buildingLevel}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                             } catch (err) {
-                                YeomenAI.statusMessage(`Failed to train units ${maxTrainUnits} ${trainUnit} in Level ${buildingLevel}: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
+                                YeomenAI.statusMessage(`Failed to train units ${trainUnitsCount} ${trainUnit} in Level ${buildingLevel}: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
                             }
                         }
 
@@ -156,7 +173,7 @@ const simulateGame = async () => {
                         }
                     }
                 }
-                
+
                 await YeomenAI.delay(delay);
             }
 

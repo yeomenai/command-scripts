@@ -52,18 +52,18 @@ const PrimodiumYeomen = {
         timebound: "0x7379000000000000000000000000000074696d65626f756e6400000000000000"
     },
     RESOURCES: {
-        IRON: 1,
-        COPPER: 2,
-        LITHIUM: 3,
-        TITANIUM: 4,
-        IRIDIUM: 5,
-        KIMBERLITE: 6,
-        PLATINUM: 7,
-        IRON_PLATE: 8,
-        ALLOY: 9,
-        PV_CELL: 10
+        IRON: {ID: 1, INDEX: 0},
+        COPPER: {ID: 2, INDEX: 1},
+        LITHIUM: {ID: 3, INDEX: 2},
+        TITANIUM: {ID: 4, INDEX: 6},
+        IRIDIUM: {ID: 5, INDEX: 8},
+        KIMBERLITE: {ID: 6, INDEX: 9},
+        PLATINUM: {ID: 7, INDEX: 7},
+        IRON_PLATE: {ID: 8, INDEX: 3},
+        ALLOY: {ID: 9, INDEX: 5},
+        PV_CELL: {ID: 10, INDEX: 4}
     },
-     /**
+    /**
      * Asynchronous function to get asteroid.
      * @param {string} entity Entity ID.
      * @returns {Promise<Object|null>} Asteroid data.
@@ -270,11 +270,13 @@ const PrimodiumYeomen = {
         //console.log(pickupAsteroidResourcesCount);
 
         const fleetResourcesCount = await this.getResourcesCount(fleetEntity);
-        //console.log(fleetResourcesCount);
+        //console.log(JSON.stringify(fleetResourcesCount));
 
         let currentFleetCargoCapacity = fleetResourcesCount.reduce((sum, fleetResourceCount) => sum + fleetResourceCount.value, 0);
         let availableFleetCargoCapacity = fleetCargoCapacity - currentFleetCargoCapacity;
-        console.log('availableFleetCargoCapacity', availableFleetCargoCapacity)
+        console.log('currentFleetCargoCapacity', currentFleetCargoCapacity / Math.pow(10, 18))
+        console.log('availableFleetCargoCapacity', availableFleetCargoCapacity / Math.pow(10, 18))
+        
 
         //Calculate allocation proportion
         let totalMaxResources = Object.values(maxResources).reduce((sum, value) => sum + value, 0);
@@ -282,13 +284,15 @@ const PrimodiumYeomen = {
 
         for (let resource in maxResources) {
             let proportion = maxResources[resource] / totalMaxResources;
-            maxResourcesAllocation[resource] = Math.floor(proportion * (fleetCargoCapacity / Math.pow(10, 18)));
+            maxResourcesAllocation[resource] = Math.floor(proportion * (availableFleetCargoCapacity / Math.pow(10, 18)));
         }
 
 
         let loadResources = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         for (const pickupAsteroidResourceCount of pickupAsteroidResourcesCount) {
             const resourceId = pickupAsteroidResourceCount.resource;
+            const RESOURCE = Object.values(this.RESOURCES).find((RESOURCE) => RESOURCE.ID == resourceId);
+            const resourceIndex = RESOURCE ? RESOURCE.INDEX : null;
             if (!maxResources[resourceId])
                 continue;
             const fleetResourceCount = fleetResourcesCount.find((fleetResourceCount) => fleetResourceCount.resource === resourceId);
@@ -305,11 +309,14 @@ const PrimodiumYeomen = {
 //
 //            console.log('availableFleetCargoCapacity', availableFleetCargoCapacity)
 
-            const loadResource = Math.max(maxResourcesAllocation[resourceId] * Math.pow(10, 18) - (fleetResourceCount ? fleetResourceCount.value : 0), 0);
 
-            loadResources[resourceId - 1] = Math.min(pickupAsteroidResourceCount.value, loadResource, availableFleetCargoCapacity);
-            availableFleetCargoCapacity = availableFleetCargoCapacity - loadResources[resourceId - 1];
+            //const loadResource = Math.max(maxResources[resourceId] * Math.pow(10, 18), maxResourcesAllocation[resourceId] * Math.pow(10, 18) - (fleetResourceCount ? fleetResourceCount.value : 0), 0);
+            const loadResource = Math.min(maxResources[resourceId] * Math.pow(10, 18), maxResourcesAllocation[resourceId] * Math.pow(10, 18));
+            
+            loadResources[resourceIndex] = Math.min(pickupAsteroidResourceCount.value, loadResource, availableFleetCargoCapacity);
+            availableFleetCargoCapacity = availableFleetCargoCapacity - loadResources[resourceIndex];
         }
+        
         console.log('fleetCargoCapacity', fleetCargoCapacity / Math.pow(10, 18));
         console.log('pickupAsteroidResourcesCount', JSON.stringify(pickupAsteroidResourcesCount.map(pickupAsteroidResourceCount => {
             return {
@@ -343,6 +350,8 @@ const PrimodiumYeomen = {
         let unloadResources = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         for (const key of Object.keys(maxResources)) {
             const resourceId = parseInt(key);
+            const RESOURCE = Object.values(this.RESOURCES).find((RESOURCE) => RESOURCE.ID == resourceId);
+            const resourceIndex = RESOURCE ? RESOURCE.INDEX : null;
             //if (!loadResources[resourceId])
             //    continue;
             const fleetResourceCount = fleetResourcesCount.find((fleetResourceCount) => fleetResourceCount.resource === resourceId);
@@ -351,8 +360,8 @@ const PrimodiumYeomen = {
             //    continue;
             //const loadResource = loadResources[resourceId - 1];
 
-            const unloadResource = Math.min(loadResources[resourceId - 1] + (fleetResourceCount ? fleetResourceCount.value : 0), maxResources[resourceId] * Math.pow(10, 18));
-            unloadResources[resourceId - 1] = unloadResource;
+            const unloadResource = Math.min(loadResources[resourceIndex] + (fleetResourceCount ? fleetResourceCount.value : 0), maxResources[resourceId] * Math.pow(10, 18));
+            unloadResources[resourceIndex] = unloadResource;
         }
 
         return unloadResources;
@@ -745,7 +754,7 @@ const PrimodiumYeomen = {
         const consumptionRates = consumptionRatesData[`${this.SCHEMA}pri_11__consumption_rate`] || [];
         return consumptionRates;
     },
-     /**
+    /**
      * Asynchronous function to get shard asteroid.
      * @param {string} entity Entity ID.
      * @returns {Promise<Object|null>} Shard Asteroid data.
@@ -763,6 +772,23 @@ const PrimodiumYeomen = {
         }`);
         const shardAsteroid = shardAsteroidData[`${this.SCHEMA}pri_11__shard_asteroid`][0] || null;
         return shardAsteroid;
+    },
+        /**
+     * Asynchronous function to get EnumToPrototypes.
+     * @returns {Promise<Array>} EnumToPrototypes data.
+     */
+    getEnumToPrototypes: async function () {
+        const enumToPrototypesData = await YeomenAI.getQueryData(`
+        query GetReserves {
+          ${this.SCHEMA}pri_11__p_enum_to_prototyp {
+            key
+            id
+            value            
+          }
+        }
+        `);
+        const enumToPrototypes = enumToPrototypesData[`${this.SCHEMA}pri_11__p_enum_to_prototyp`] || [];
+        return enumToPrototypes;
     },
     /**
      * Asynchronous function to get cooldown end.

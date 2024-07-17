@@ -34,12 +34,12 @@ const simulateGame = async () => {
 
             //Load resources   
             let maxResources = {
-                [PrimodiumYeomen.RESOURCES.IRON]: 20000,
-                [PrimodiumYeomen.RESOURCES.COPPER]: 20000,
-                [PrimodiumYeomen.RESOURCES.LITHIUM]: 20000,
-                [PrimodiumYeomen.RESOURCES.IRON_PLATE]: 20000,
-                [PrimodiumYeomen.RESOURCES.ALLOY]: 20000,
-                [PrimodiumYeomen.RESOURCES.PV_CELL]: 20000
+                [PrimodiumYeomen.RESOURCES.IRON.ID]: 20000,
+                [PrimodiumYeomen.RESOURCES.COPPER.ID]: 20000,
+                [PrimodiumYeomen.RESOURCES.LITHIUM.ID]: 20000,
+                [PrimodiumYeomen.RESOURCES.IRON_PLATE.ID]: 20000,
+                [PrimodiumYeomen.RESOURCES.ALLOY.ID]: 20000,
+                [PrimodiumYeomen.RESOURCES.PV_CELL.ID]: 20000
             };
             const loadResources = await PrimodiumYeomen.getAsteroidToFleetLoadResources(resourcePickupAsteroid, fleetEntity, maxResources);
             console.log('loadResources', loadResources);

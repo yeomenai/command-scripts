@@ -4,15 +4,15 @@ const delay = formFields['delay'];
 const MarketplaceSystemId = PrimodiumYeomen.SYSTEMS.MarketplaceSyste;
 
 let swapResourcesPercentage = {
-    [PrimodiumYeomen.RESOURCES.IRON]: 10,
-    [PrimodiumYeomen.RESOURCES.COPPER]: 10
+    [PrimodiumYeomen.RESOURCES.IRON.ID]: 10,
+    [PrimodiumYeomen.RESOURCES.COPPER.ID]: 10
 };
 
 let eliteResources = [
-    PrimodiumYeomen.RESOURCES.TITANIUM,
-    PrimodiumYeomen.RESOURCES.PLATINUM,
-    PrimodiumYeomen.RESOURCES.IRIDIUM,
-    PrimodiumYeomen.RESOURCES.KIMBERLITE
+    PrimodiumYeomen.RESOURCES.TITANIUM.ID,
+    PrimodiumYeomen.RESOURCES.PLATINUM.ID,
+    PrimodiumYeomen.RESOURCES.IRIDIUM.ID,
+    PrimodiumYeomen.RESOURCES.KIMBERLITE.ID
 ]
 
 const simulateGame = async () => {
@@ -53,7 +53,7 @@ const simulateGame = async () => {
                     continue;
 
                 const swapResourceId = resource;
-                const swapResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key] == swapResourceId);
+                const swapResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key].ID == swapResourceId);				
 
                 const asteroidMaxResourceCount = await PrimodiumYeomen.getMaxResourceCount(asteroidEntity, resource);
                 console.log(asteroidResourceCount, asteroidMaxResourceCount)
@@ -73,7 +73,7 @@ const simulateGame = async () => {
 
 
                 const eliteResourceId = eliteResources[Math.floor(Math.random() * eliteResources.length)];
-                const eliteResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key] === eliteResourceId);
+                const eliteResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key].ID === eliteResourceId);				
 
                 console.log(swapResource, eliteResource, swapResourceAmount)
 
