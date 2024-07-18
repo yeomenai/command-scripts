@@ -2,6 +2,7 @@ const asteroidEntity = formFields['asteroidEntity'];
 const fleetEntity = formFields['fleetEntity'];
 
 const FleetCombatSystemId = PrimodiumYeomen.SYSTEMS.CombatSystem;
+const FleetMoveSystemId = PrimodiumYeomen.SYSTEMS.FleetSendSystem;
 
 const simulateGame = async () => {
     do {
@@ -19,9 +20,16 @@ const simulateGame = async () => {
             const destinationAsteroidEntity = fleetMovement.destination.replace(/\\x/g, '0x');
 
             if (asteroidEntity != destinationAsteroidEntity) {
-                YeomenAI.statusMessage('Fleet not in asteroid to attack', YeomenAI.MESSAGE_TYPES.ERROR);
-                YeomenAI.exit(1);
-                return;
+                //YeomenAI.statusMessage('Fleet not in asteroid to attack', YeomenAI.MESSAGE_TYPES.ERROR);
+                //YeomenAI.exit(1);
+                //return;
+                try {
+                    YeomenAI.statusMessage(`Moving fleet to attacking asteroid`);
+                    await YeomenAI.sendTransaction('sendFleet', [fleetEntity, asteroidEntity], FleetMoveSystemId);
+                    YeomenAI.statusMessage(`Successfully moved Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
+                } catch (err) {
+                    YeomenAI.statusMessage(`Failed to move Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
+                }
             }
 
             YeomenAI.statusMessage('Get Fleet owner');
