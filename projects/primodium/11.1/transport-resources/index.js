@@ -8,6 +8,20 @@ const asteroidEntities = [resourcePickupAsteroid, resourceDropoffAsteroid];
 const FleetMoveSystemId = PrimodiumYeomen.SYSTEMS.FleetSendSystem;
 const FleetTransferSystemId = PrimodiumYeomen.SYSTEMS.TransferSystem;
 
+ //Load resources   
+let maxResources = {
+    [PrimodiumYeomen.RESOURCES.IRON.ID]: 20000,
+    [PrimodiumYeomen.RESOURCES.COPPER.ID]: 20000,
+    [PrimodiumYeomen.RESOURCES.LITHIUM.ID]: 20000,
+    [PrimodiumYeomen.RESOURCES.IRON_PLATE.ID]: 20000,
+    [PrimodiumYeomen.RESOURCES.ALLOY.ID]: 20000,
+    [PrimodiumYeomen.RESOURCES.PV_CELL.ID]: 20000
+};
+
+let fleetMovement;
+let sourceAsteroidEntity;
+let destinationAsteroidEntity;
+
 const simulateGame = async () => {
     do {
         try {
@@ -21,7 +35,8 @@ const simulateGame = async () => {
             }
 
             //Get Fleet's Current Position and details
-            const fleetMovement = await PrimodiumYeomen.getFleetMovement(fleetEntity);
+            //const fleetMovement = await PrimodiumYeomen.getFleetMovement(fleetEntity);
+            fleetMovement = await PrimodiumYeomen.getFleetMovementRecord(fleetEntity);
             if (!fleetMovement) {
                 YeomenAI.statusMessage(`No fleet found with entity ${fleetEntity}`, YeomenAI.MESSAGE_TYPES.ERROR);
                 YeomenAI.exit(1);
@@ -29,18 +44,12 @@ const simulateGame = async () => {
             }
 
 
-            const sourceAsteroidEntity = fleetMovement.destination.replace(/\\x/g, '0x');
-            const destinationAsteroidEntity = asteroidEntities.find((asteroidEntity) => asteroidEntity !== sourceAsteroidEntity);
+            sourceAsteroidEntity = fleetMovement.destination.replace(/\\x/g, '0x');
+            destinationAsteroidEntity = asteroidEntities.find((asteroidEntity) => asteroidEntity !== sourceAsteroidEntity);
 
-            //Load resources   
-            let maxResources = {
-                [PrimodiumYeomen.RESOURCES.IRON.ID]: 20000,
-                [PrimodiumYeomen.RESOURCES.COPPER.ID]: 20000,
-                [PrimodiumYeomen.RESOURCES.LITHIUM.ID]: 20000,
-                [PrimodiumYeomen.RESOURCES.IRON_PLATE.ID]: 20000,
-                [PrimodiumYeomen.RESOURCES.ALLOY.ID]: 20000,
-                [PrimodiumYeomen.RESOURCES.PV_CELL.ID]: 20000
-            };
+            //wait for fleet to reach origin and start orbiting   
+            YeomenAI.statusMessage(`Check for fleet orbiting asteroid`);
+            await PrimodiumYeomen.waitForFleetToReachTarget(fleetEntity, sourceAsteroidEntity);
 
 
             if (resourcePickupAsteroid === sourceAsteroidEntity) {
@@ -74,11 +83,17 @@ const simulateGame = async () => {
                 YeomenAI.statusMessage(`Successfully moved Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
             } catch (err) {
                 YeomenAI.statusMessage(`Failed to move Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
+                continue;
             }
 
             //wait for fleet to reach destination and start orbiting   
             YeomenAI.statusMessage(`Waiting for fleet to reach ${resourceDropoffAsteroid === destinationAsteroidEntity ? 'dropoff asteroid' : 'pickup asteroid'}`);
             await PrimodiumYeomen.waitForFleetToReachTarget(fleetEntity, destinationAsteroidEntity);
+
+
+            fleetMovement = await PrimodiumYeomen.getFleetMovementRecord(fleetEntity);
+            destinationAsteroidEntity = fleetMovement.destination.replace(/\\x/g, '0x');
+            sourceAsteroidEntity = asteroidEntities.find((asteroidEntity) => asteroidEntity !== destinationAsteroidEntity);
 
 
             if (resourceDropoffAsteroid === destinationAsteroidEntity) {
@@ -102,7 +117,7 @@ const simulateGame = async () => {
                     YeomenAI.statusMessage(`Successfully transfered resources from Asteroid To Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to transfer resources from Asteroid To Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
-                }
+                 }
             }
 
             try {
@@ -111,6 +126,7 @@ const simulateGame = async () => {
                 YeomenAI.statusMessage(`Successfully moved fleet `, YeomenAI.MESSAGE_TYPES.SUCCESS);
             } catch (err) {
                 YeomenAI.statusMessage(`Failed to move fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
+                continue;
             }
 
             //wait for fleet to reach origin and start orbiting   

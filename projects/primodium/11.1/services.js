@@ -61,7 +61,27 @@ const PrimodiumYeomen = {
         PLATINUM: {ID: 7, INDEX: 7},
         IRON_PLATE: {ID: 8, INDEX: 3},
         ALLOY: {ID: 9, INDEX: 5},
-        PV_CELL: {ID: 10, INDEX: 4}
+        PV_CELL: {ID: 10, INDEX: 4},
+        U_ELECTRICITY: {ID: 11, INDEX: null},
+        U_HOUSING: {ID: 12, INDEX: null},
+        U_MAXFLEETS: {ID: 13, INDEX: null},
+        U_DEFENSE: {ID: 14, INDEX: null},
+        U_UNRAIDABLE: {ID: 15, INDEX: null},
+        U_ADVANCEDUNRAIDABLE: {ID: 16, INDEX: null},
+        R_HP: {ID: 17, INDEX: null},
+        R_ENCRYPTION: {ID: 18, INDEX: null},
+        M_DEFENSEMULTIPLIER: {ID: 19, INDEX: null},
+    },
+    UNITS: {
+        AegisDrone: {INDEX: 0},
+        AnvilDrone: {INDEX: 1},
+        StingerDrone: {INDEX: 2},
+        HammerDrone: {INDEX: 3},
+        MinutemanMarine: {INDEX: 4},
+        TridentMarine: {INDEX: 5},
+        LightningCraft: {INDEX: 6},
+        ColonyShip: {INDEX: 0},
+        Droid: {INDEX: 8},
     },
     /**
      * Asynchronous function to get asteroid.
@@ -208,12 +228,14 @@ const PrimodiumYeomen = {
         await new Promise((resolve, reject) => {
             const checkFleetReachedTarget = async() => {
 
-                const fleetMovement = await this.getFleetMovement(fleetEntity);
-                //console.log('waitForFleetToReachTarget', fleetMovement, fleetEntity, targetEntity)
-                if (fleetMovement && fleetMovement.destination.replace(/\\x/g, '0x') === targetEntity && parseInt((new Date().getTime() / 1000).toFixed(0)) > parseInt(fleetMovement.arrival_time) + 10) {
-                    resolve("Fleet reached");
+                //const fleetMovement = await this.getFleetMovement(fleetEntity);
+                const fleetMovement = await this.getFleetMovementRecord(fleetEntity);
+                console.log('waitForFleetToReachTarget', fleetMovement, fleetEntity, targetEntity)
+
+                if (fleetMovement && fleetMovement.destination.replace(/\\x/g, '0x') === targetEntity && parseInt((new Date().getTime() / 1000).toFixed(0)) > parseInt(fleetMovement.arrivalTime) + 10) {
+                    return resolve("Fleet reached");
                 } else if (fleetMovement && fleetMovement.destination.replace(/\\x/g, '0x') === targetEntity) {
-                    setTimeout(checkFleetReachedTarget, ((parseInt(fleetMovement.arrival_time) + 10) - parseInt((new Date().getTime() / 1000).toFixed(0))) * 1000);//Check only after x period
+                    setTimeout(checkFleetReachedTarget, ((parseInt(fleetMovement.arrivalTime) + 10) - parseInt((new Date().getTime() / 1000).toFixed(0))) * 1000);//Check only after x period
                 } else {
                     setTimeout(checkFleetReachedTarget, 1000); // Check again after 1000 milliseconds
                 }
@@ -261,22 +283,27 @@ const PrimodiumYeomen = {
      */
     getAsteroidToFleetLoadResources: async function (asteroidEntity, fleetEntity, maxResources) {
         let fleetCargoCapacity = await this.getFleetCargoCapacity(fleetEntity);
-        fleetCargoCapacity = fleetCargoCapacity ? fleetCargoCapacity - (10 * Math.pow(10, 18)) : null;//Dont use max space
+        fleetCargoCapacity = fleetCargoCapacity ? fleetCargoCapacity * 0.8 : null;//Dont use max space
         //console.log(fleetCargoCapacity);
 
         //let availableFleetCargoCapacity = fleetCargoCapacity;
 
-        const pickupAsteroidResourcesCount = await this.getResourcesCount(asteroidEntity);
-        //console.log(pickupAsteroidResourcesCount);
+        const pickupAsteroidResourcesCount = await this.getAvailableResources(asteroidEntity);
+        console.log(JSON.stringify(pickupAsteroidResourcesCount, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
+        
 
-        const fleetResourcesCount = await this.getResourcesCount(fleetEntity);
-        //console.log(JSON.stringify(fleetResourcesCount));
+        const fleetResourcesCount = await this.getResourcesCountRecords(fleetEntity);
+        console.log(JSON.stringify(fleetResourcesCount, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
 
-        let currentFleetCargoCapacity = fleetResourcesCount.reduce((sum, fleetResourceCount) => sum + fleetResourceCount.value, 0);
+        let currentFleetCargoCapacity = fleetResourcesCount.reduce((sum, fleetResourceCount) => sum + parseInt(fleetResourceCount.value), 0);
         let availableFleetCargoCapacity = fleetCargoCapacity - currentFleetCargoCapacity;
         console.log('currentFleetCargoCapacity', currentFleetCargoCapacity / Math.pow(10, 18))
         console.log('availableFleetCargoCapacity', availableFleetCargoCapacity / Math.pow(10, 18))
-        
+
 
         //Calculate allocation proportion
         let totalMaxResources = Object.values(maxResources).reduce((sum, value) => sum + value, 0);
@@ -312,11 +339,11 @@ const PrimodiumYeomen = {
 
             //const loadResource = Math.max(maxResources[resourceId] * Math.pow(10, 18), maxResourcesAllocation[resourceId] * Math.pow(10, 18) - (fleetResourceCount ? fleetResourceCount.value : 0), 0);
             const loadResource = Math.min(maxResources[resourceId] * Math.pow(10, 18), maxResourcesAllocation[resourceId] * Math.pow(10, 18));
-            
+
             loadResources[resourceIndex] = Math.min(pickupAsteroidResourceCount.value, loadResource, availableFleetCargoCapacity);
             availableFleetCargoCapacity = availableFleetCargoCapacity - loadResources[resourceIndex];
         }
-        
+
         console.log('fleetCargoCapacity', fleetCargoCapacity / Math.pow(10, 18));
         console.log('pickupAsteroidResourcesCount', JSON.stringify(pickupAsteroidResourcesCount.map(pickupAsteroidResourceCount => {
             return {
@@ -327,7 +354,7 @@ const PrimodiumYeomen = {
         console.log('fleetResourcesCount', JSON.stringify(fleetResourcesCount.map(fleetResourceCount => {
             return {
                 resource: fleetResourceCount.resource,
-                value: fleetResourceCount.value / Math.pow(10, 18)
+                value: parseInt(fleetResourceCount.value) / Math.pow(10, 18)
             };
         })));
         console.log('maxResources', maxResources);
@@ -335,6 +362,7 @@ const PrimodiumYeomen = {
         console.log('loadResources', loadResources.map((loadResource) => Math.max(loadResource / Math.pow(10, 18), 0)));
         return loadResources;
     },
+
     /**
      * Asynchronous function to get fleet to asteroid unload resources.
      * @param {string} fleetEntity Fleet entity ID.
@@ -344,8 +372,10 @@ const PrimodiumYeomen = {
      * @returns {Promise<Array>} Unloaded resources.
      */
     getFleetToAsteroidUnloadResources: async function (fleetEntity, asteroidEntity, maxResources, loadResources) {
-        const fleetResourcesCount = await this.getResourcesCount(fleetEntity);
-        //console.log(fleetResourcesCount);
+        const fleetResourcesCount = await this.getResourcesCountRecords(fleetEntity);
+        console.log(JSON.stringify(fleetResourcesCount, (key, value) =>
+            typeof value === 'bigint' ? value.toString() : value
+        ));
 
         let unloadResources = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         for (const key of Object.keys(maxResources)) {
@@ -354,13 +384,16 @@ const PrimodiumYeomen = {
             const resourceIndex = RESOURCE ? RESOURCE.INDEX : null;
             //if (!loadResources[resourceId])
             //    continue;
+            if (!maxResources[resourceId])
+                continue;
             const fleetResourceCount = fleetResourcesCount.find((fleetResourceCount) => fleetResourceCount.resource === resourceId);
 
             //if (!fleetResourceCount)
             //    continue;
             //const loadResource = loadResources[resourceId - 1];
 
-            const unloadResource = Math.min(loadResources[resourceIndex] + (fleetResourceCount ? fleetResourceCount.value : 0), maxResources[resourceId] * Math.pow(10, 18));
+            //const unloadResource = Math.min(loadResources[resourceIndex] + (fleetResourceCount ? fleetResourceCount.value : 0), maxResources[resourceId] * Math.pow(10, 18));
+            const unloadResource = Math.min((fleetResourceCount ? parseInt(fleetResourceCount.value) : 0), maxResources[resourceId] * Math.pow(10, 18));
             unloadResources[resourceIndex] = unloadResource;
         }
 
@@ -587,6 +620,26 @@ const PrimodiumYeomen = {
         return position;
     },
     /**
+     * Asynchronous function to get positions data.
+     * @param {string} parentEntity Entity ID.
+     * @returns {Promise<Object|null>} positions data.
+     */
+    getPositions: async function (parentEntity) {
+        parentEntity = parentEntity.replace(/(0x|\\x)/g, '\\\\x');
+        const positionsData = await YeomenAI.getQueryData(`
+        query GetPosition {
+          ${this.SCHEMA}pri_11__position(where: {parent_entity: {_eq: "${parentEntity}"}}) {
+            entity           
+            x
+            y
+            parent_entity
+          }
+        }
+        `);
+        const positions = positionsData[`${this.SCHEMA}pri_11__position`] || [];
+        return positions;
+    },
+    /**
      * Asynchronous function to get max resources count.
      * @param {string} prototype .
      * @param {int} Entity .    
@@ -670,37 +723,37 @@ const PrimodiumYeomen = {
      * @returns {Promise<Array>} available resources data.
      */
     getAvailableResources: async function (entity) {
-        const entityResourcesCount = await this.getResourcesCount(entity);
-        const entityMaxResourcesCount = await this.getMaxResourcesCount(entity);
+        const entityResourcesCount = await this.getResourcesCountRecords(entity);
+        const entityMaxResourcesCount = await this.getMaxResourcesCountRecords(entity);
 
-        const entityProductionRates = await this.getProductionRates(entity);
-        const entityConsumptionRates = await this.getConsumptionRates(entity);
+        const entityProductionRates = await this.getProductionRatesRecords(entity);
+        const entityConsumptionRates = await this.getConsumptionRatesRecords(entity);
 
-        const lastClaimedAt = await this.getLastClaimedAt(entity);
+        const lastClaimedAt = await this.getLastClaimedAtRecord(entity);
 
 
         const currentTime = Math.floor(new Date().getTime() / 1000);
-        const timeDiff = currentTime - lastClaimedAt.value;
+        const timeDiff = currentTime - parseInt(lastClaimedAt.value);
 
 
         const availableResources = entityResourcesCount.map((entityResourceCount) => {
             const resource = entityResourceCount.resource;
-            const currentResourceValue = entityResourceCount.value;
+            const currentResourceValue = parseInt(entityResourceCount.value);
 
             const maxResource = entityMaxResourcesCount.find((r) => {
                 return r.resource === resource;
             });
-            const maxResourceValue = maxResource ? maxResource.value : 0;
+            const maxResourceValue = maxResource ? parseInt(maxResource.value) : 0;
 
             const productionRateResource = entityProductionRates.find((r) => {
                 return r.resource === resource;
             });
-            const productionRate = productionRateResource ? productionRateResource.value : 0;
+            const productionRate = productionRateResource ? parseInt(productionRateResource.value) : 0;
 
             const consumptionRateResource = entityConsumptionRates.find((r) => {
                 return r.resource === resource;
             });
-            const consumptionRate = consumptionRateResource ? consumptionRateResource.value : 0;
+            const consumptionRate = consumptionRateResource ? parseInt(consumptionRateResource.value) : 0;
 
             const producedValue = timeDiff * productionRate;
             const consumptionValue = timeDiff * consumptionRate;
@@ -709,8 +762,10 @@ const PrimodiumYeomen = {
             const cappedTotalValue = Math.min(totalValue, maxResourceValue);
 
             return {
+                entity,
                 resource,
-                amount: cappedTotalValue,
+                value: cappedTotalValue,
+                amount: cappedTotalValue,//Later remove this and use only value
             };
         });
 
@@ -773,7 +828,7 @@ const PrimodiumYeomen = {
         const shardAsteroid = shardAsteroidData[`${this.SCHEMA}pri_11__shard_asteroid`][0] || null;
         return shardAsteroid;
     },
-        /**
+    /**
      * Asynchronous function to get EnumToPrototypes.
      * @returns {Promise<Array>} EnumToPrototypes data.
      */
@@ -789,6 +844,24 @@ const PrimodiumYeomen = {
         `);
         const enumToPrototypes = enumToPrototypesData[`${this.SCHEMA}pri_11__p_enum_to_prototyp`] || [];
         return enumToPrototypes;
+    },
+    /**
+     * Asynchronous function to get dimensions data.
+     * @returns {Promise<Array>} Dimensions data.
+     */
+    getDimensions: async function () {
+        const dimensionsData = await YeomenAI.getQueryData(`
+        query GetDimensions {
+          ${this.SCHEMA}pri_11__dimensions {
+            key
+            level
+            width
+            height
+          }
+        }
+        `);
+        const dimensions = dimensionsData[`${this.SCHEMA}pri_11__dimensions`] || [];
+        return dimensions;
     },
     /**
      * Asynchronous function to get cooldown end.
@@ -828,4 +901,163 @@ const PrimodiumYeomen = {
             },
         });
     },
+    getFleetMovementRecord: async function (entity) {
+        const TABLE_ID = '0x74625072695f31310000000000000000466c6565744d6f76656d656e74000000';
+        //const FIELD_LAYOUT = await YeomenAI.getContractData('getFieldLayout', [TABLE_ID]);
+        const KEY_TUPLE = [entity];
+
+        const TABLE_SCHEMA = {
+            "key": [
+                "entity"
+            ],
+            "schema": {
+                "entity": "bytes32",
+                "origin": "bytes32",
+                "destination": "bytes32",
+                "sendTime": "uint256",
+                "arrivalTime": "uint256"
+            }
+        };
+
+        const record = await YeomenAI.getContractData('getRecord', [TABLE_ID, KEY_TUPLE]);
+        //console.log(record)
+
+        const recordDecoded = await YeomenAI.decodeMudRecord(TABLE_SCHEMA, KEY_TUPLE, record);
+        //console.log(recordDecoded)
+
+        return recordDecoded;
+    },
+    getResourcesCountRecords: async function (entity) {
+        const TABLE_ID = '0x74625072695f313100000000000000005265736f75726365436f756e74000000';
+
+        const TABLE_SCHEMA = {
+            "key": [
+                "entity",
+                "resource"
+            ],
+            "schema": {
+                "entity": "bytes32",
+                "resource": "uint8",
+                "value": "uint256"
+            }
+        };
+
+        let records = [];
+
+        for (const RESOURCE_KEY of Object.keys(this.RESOURCES)) {
+            const RESOURCE = this.RESOURCES[RESOURCE_KEY];
+            const KEY_TUPLE = [entity, WorkerUtils.numberToHex(RESOURCE.ID, {size: 32})];
+
+            const record = await YeomenAI.getContractData('getRecord', [TABLE_ID, KEY_TUPLE]);
+            const recordDecoded = await YeomenAI.decodeMudRecord(TABLE_SCHEMA, KEY_TUPLE, record);
+            records.push(recordDecoded);
+        }
+
+        return records;
+    },
+    getMaxResourcesCountRecords: async function (entity) {
+        const TABLE_ID = '0x74625072695f313100000000000000004d61785265736f75726365436f756e74';
+
+        const TABLE_SCHEMA = {
+            "key": [
+                "entity",
+                "resource"
+            ],
+            "schema": {
+                "entity": "bytes32",
+                "resource": "uint8",
+                "value": "uint256"
+            }
+        };
+
+        let records = [];
+
+        for (const RESOURCE_KEY of Object.keys(this.RESOURCES)) {
+            const RESOURCE = this.RESOURCES[RESOURCE_KEY];
+            const KEY_TUPLE = [entity, WorkerUtils.numberToHex(RESOURCE.ID, {size: 32})];
+
+            const record = await YeomenAI.getContractData('getRecord', [TABLE_ID, KEY_TUPLE]);
+            const recordDecoded = await YeomenAI.decodeMudRecord(TABLE_SCHEMA, KEY_TUPLE, record);
+            records.push(recordDecoded);
+        }
+
+        return records;
+    },
+    getProductionRatesRecords: async function (entity) {
+        const TABLE_ID = '0x74625072695f3131000000000000000050726f64756374696f6e526174650000';
+
+        const TABLE_SCHEMA = {
+            "key": [
+                "entity",
+                "resource"
+            ],
+            "schema": {
+                "entity": "bytes32",
+                "resource": "uint8",
+                "value": "uint256"
+            }
+        };
+
+        let records = [];
+
+        for (const RESOURCE_KEY of Object.keys(this.RESOURCES)) {
+            const RESOURCE = this.RESOURCES[RESOURCE_KEY];
+            const KEY_TUPLE = [entity, WorkerUtils.numberToHex(RESOURCE.ID, {size: 32})];
+
+            const record = await YeomenAI.getContractData('getRecord', [TABLE_ID, KEY_TUPLE]);
+            const recordDecoded = await YeomenAI.decodeMudRecord(TABLE_SCHEMA, KEY_TUPLE, record);
+            records.push(recordDecoded);
+        }
+
+        return records;
+    },
+    getConsumptionRatesRecords: async function (entity) {
+        const TABLE_ID = '0x74625072695f31310000000000000000436f6e73756d7074696f6e5261746500';
+
+        const TABLE_SCHEMA = {
+            "key": [
+                "entity",
+                "resource"
+            ],
+            "schema": {
+                "entity": "bytes32",
+                "resource": "uint8",
+                "value": "uint256"
+            }
+        };
+
+        let records = [];
+
+        for (const RESOURCE_KEY of Object.keys(this.RESOURCES)) {
+            const RESOURCE = this.RESOURCES[RESOURCE_KEY];
+            const KEY_TUPLE = [entity, WorkerUtils.numberToHex(RESOURCE.ID, {size: 32})];
+
+            const record = await YeomenAI.getContractData('getRecord', [TABLE_ID, KEY_TUPLE]);
+            const recordDecoded = await YeomenAI.decodeMudRecord(TABLE_SCHEMA, KEY_TUPLE, record);
+            records.push(recordDecoded);
+        }
+
+        return records;
+    },
+    getLastClaimedAtRecord: async function (entity) {
+        const TABLE_ID = '0x74625072695f313100000000000000004c617374436c61696d65644174000000';
+
+        const KEY_TUPLE = [entity];
+
+        const TABLE_SCHEMA = {
+            "key": [
+                "entity"
+            ],
+            "schema": {
+                "entity": "bytes32",
+                "value": "uint256"
+            }
+        };
+
+        const record = await YeomenAI.getContractData('getRecord', [TABLE_ID, KEY_TUPLE]);
+
+        const recordDecoded = await YeomenAI.decodeMudRecord(TABLE_SCHEMA, KEY_TUPLE, record);
+
+        return recordDecoded;
+    }
 }
