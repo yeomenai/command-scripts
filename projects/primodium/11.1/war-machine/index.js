@@ -102,8 +102,13 @@ const simulateGame = async () => {
                         });
 
                         const maxTrainUnits = Math.min(...trainUnitsPerResource);
+//                        const trainUnitsCount = maxTrainUnits && totalBuildingTypes[buildingType]
+//                                ? Math.floor(maxTrainUnits / totalBuildingTypes[buildingType])
+//                                : 0;
                         const trainUnitsCount = maxTrainUnits && totalBuildingTypes[buildingType]
-                                ? Math.floor(maxTrainUnits / totalBuildingTypes[buildingType])
+                                ? (maxTrainUnits >= totalBuildingTypes[buildingType]
+                                        ? Math.floor(maxTrainUnits / totalBuildingTypes[buildingType])
+                                        : maxTrainUnits)
                                 : 0;
 
                         if (trainUnitsCount) {

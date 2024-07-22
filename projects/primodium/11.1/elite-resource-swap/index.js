@@ -44,7 +44,7 @@ const simulateGame = async () => {
             }
 
 
-            const asteroidResourcesCount = await PrimodiumYeomen.getResourcesCount(asteroidEntity);
+            const asteroidResourcesCount = await PrimodiumYeomen.getAvailableResources(asteroidEntity);
             console.log(asteroidResourcesCount)
 
             for (const asteroidResourceCount of asteroidResourcesCount) {
