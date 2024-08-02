@@ -61,7 +61,7 @@ const simulateGame = async () => {
                     const unitIndex = PrimodiumYeomen.UNITS[unitType].INDEX;
                     loadUnits[unitIndex] = fleetAsteroidUnitCount.value;
                 }
-                console.log(loadUnits)
+                //console.log(loadUnits)
                 
                 if (loadUnits.some(value => value > 0)) {
                     try {
@@ -79,6 +79,7 @@ const simulateGame = async () => {
                     YeomenAI.statusMessage(`Successfully moved Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to move Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
+                    continue;
                 }
 
                 //wait for fleet to reach destination and start orbiting   

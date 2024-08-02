@@ -24,7 +24,7 @@ const simulateGame = async () => {
                 const buildingTypeHex = buildingTypeRecord.value;
 
                 // Check if building is MainBase
-                if (buildingType !== 'MainBase') {
+                if (buildingType !== 'MainBase' && buildingType !== 'WormholeBase') {
                     continue;
                 }
 
@@ -72,7 +72,7 @@ const simulateGame = async () => {
                     if (areResourcesSufficient) {
                         YeomenAI.statusMessage(`Upgrade ${buildingType} from Level ${buildingLevel} to Level ${requiredLevel}`);
                         try {
-                            await YeomenAI.sendTransaction('upgradeBuilding', [buldingEntity], UpgradeBuildingSystemId);
+                            await YeomenAI.sendTransaction('upgradeBuilding', [buldingEntity], UpgradeBuildingSystemId, `Upgrade ${buildingType} from Level ${buildingLevel} to Level ${requiredLevel}`);
                             YeomenAI.statusMessage(`Successfully upgraded ${buildingType} to level ${requiredLevel}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                         } catch (err) {
                             YeomenAI.statusMessage(`Failed to upgrade ${buildingType} to level ${requiredLevel}: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
@@ -109,7 +109,7 @@ const simulateGame = async () => {
                     if (areExpansionResourcesSufficient) {
                         YeomenAI.statusMessage(`Expanding ${buildingType}`);
                         try {
-                            await YeomenAI.sendTransaction('upgradeRange', [asteroidEntity], UpgradeRangeSystemId);
+                            await YeomenAI.sendTransaction('upgradeRange', [asteroidEntity], UpgradeRangeSystemId, `Expanding ${buildingType}`);
                             YeomenAI.statusMessage(`Successfully expanded ${buildingType}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                         } catch (err) {
                             YeomenAI.statusMessage(`Failed to expand ${buildingType}: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);

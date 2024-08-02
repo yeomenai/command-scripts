@@ -53,7 +53,7 @@ const simulateGame = async () => {
                     continue;
 
                 const swapResourceId = resource;
-                const swapResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key].ID == swapResourceId);				
+                const swapResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key].ID == swapResourceId);
 
                 const asteroidMaxResourceCount = await PrimodiumYeomen.getMaxResourceCount(asteroidEntity, resource);
                 console.log(asteroidResourceCount, asteroidMaxResourceCount)
@@ -73,7 +73,7 @@ const simulateGame = async () => {
 
 
                 const eliteResourceId = eliteResources[Math.floor(Math.random() * eliteResources.length)];
-                const eliteResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key].ID === eliteResourceId);				
+                const eliteResource = Object.keys(PrimodiumYeomen.RESOURCES).find(key => PrimodiumYeomen.RESOURCES[key].ID === eliteResourceId);
 
                 console.log(swapResource, eliteResource, swapResourceAmount)
 
@@ -133,7 +133,7 @@ const simulateGame = async () => {
                         path,
                         parseInt(amountIn),
                         0
-                    ], MarketplaceSystemId);
+                    ], MarketplaceSystemId, `Swap Resource ${swapResource} with ${eliteResource}`);
                     YeomenAI.statusMessage(`Swapped resource ${swapResource} with ${eliteResource}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to swap resource: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);

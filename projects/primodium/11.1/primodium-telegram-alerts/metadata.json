@@ -1,16 +1,15 @@
 {
     "version": "1.1.0",
-    "name": "Asteroid telegram alerts",    
+    "name": "Primodium telegram alerts",    
     "description": "Sends telegram alerts based on certain conditions",
     "category": "Telegram, Alerts",
     "imageUrl": "",
-    "formHelp": "",
     "formFields": [    
         {
-            "id": "asteroidEntity",
+            "id": "ownerAddress",
             "type": "text",
-            "label": "Asteroid Entity",            
-            "placeholder": "Please enter your asteroid",
+            "label": "Owner Address",            
+            "placeholder": "Please enter your owner address",
             "required": true
         },
         {
@@ -26,6 +25,14 @@
             "label": "Alert on incoming fleet",            
             "placeholder": "",
             "required": false
+        },
+        {
+            "id": "alertOnNotClaimedPrimodiumFrequency",
+            "type": "text",
+            "label": "Alert on not claimed Primodium in x minutes",            
+            "placeholder": "",
+            "required": false,
+            "value": 5
         }
     ],
     "mainScript": "index.js"

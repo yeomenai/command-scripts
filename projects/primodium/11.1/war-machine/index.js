@@ -15,23 +15,25 @@ const simulateGame = async () => {
             const asteroidOwnedEntities = await PrimodiumYeomen.getOwnedEntities(asteroidEntity);
             console.log(asteroidOwnedEntities)
 
+            let mainBaseEntity;
             //Find out total building types
             let totalBuildingTypes = {};
             for (const asteroidOwnedEntity of asteroidOwnedEntities) {
-                const buldingEntity = asteroidOwnedEntity.entity.replace(/\\x/g, '0x');
-                const buildingTypeRecord = await PrimodiumYeomen.getBuildingType(buldingEntity);
+                const buildingEntity = asteroidOwnedEntity.entity.replace(/\\x/g, '0x');
+                const buildingTypeRecord = await PrimodiumYeomen.getBuildingType(buildingEntity);
                 if (!buildingTypeRecord) {
                     continue;
                 }
                 const buildingType = WorkerUtils.hexToUtf8(buildingTypeRecord.value);
                 const buildingTypeHex = buildingTypeRecord.value;
-
+                if (buildingType == 'MainBase') {
+                    mainBaseEntity = buildingEntity;
+                }
 
                 totalBuildingTypes[buildingType] = (totalBuildingTypes[buildingType] || 0) + 1;
             }
 
-            //Upgrade and train
-            let mainBaseEntity;
+            //Upgrade and train            
             for (const asteroidOwnedEntity of asteroidOwnedEntities) {
                 const buildingEntity = asteroidOwnedEntity.entity.replace(/\\x/g, '0x');
                 const buildingTypeRecord = await PrimodiumYeomen.getBuildingType(buildingEntity);
