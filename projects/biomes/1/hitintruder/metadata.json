@@ -1,0 +1,10 @@
+{
+    "version": "1.1.0",
+    "name": "Hit Intruder",    
+    "description": "Defend your territory by using the Hit Intruder action to swiftly eliminate unauthorized players and maintain control.",
+    "category": "Hit, Intruder",
+    "imageUrl": "",
+    "formFields": [         
+    ],
+    "mainScript": "index.js"
+}
