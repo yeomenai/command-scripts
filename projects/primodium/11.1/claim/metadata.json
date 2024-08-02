@@ -1,10 +1,19 @@
 {
-    "version": "1.0.0",
+    "version": "1.1.7",
     "name": "Claim Primodium",    
     "description": "Streamline the process of claiming Primodium, resources, Shard Asteroid Points, units, and objectives.",
     "category": "Claim, Primodium, Resources, Units, Objectives",
     "imageUrl": "",
-    "formFields": [           
+    "formFields": [     
+        {
+            "id": "claim",
+            "type": "checkboxgroup",
+            "label": "Claim",            
+            "placeholder": "",
+            "required": false,
+            "options": ["Primodium", "Objectives", "Resources", "Units", "ShardAsteroidPoints"],
+            "value": ["Primodium"]
+        },
         {
             "id": "delay",
             "type": "text",

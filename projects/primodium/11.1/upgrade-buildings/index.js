@@ -111,7 +111,7 @@ const simulateGame = async () => {
                     if (areResourcesSufficient) {
                         YeomenAI.statusMessage(`Sufficient resources available for upgrading ${buildingType} to level ${requiredLevel}`);
                         try {
-                            await YeomenAI.sendTransaction('upgradeBuilding', [buldingEntity], UpgradeBuildingSystemId);
+                            await YeomenAI.sendTransaction('upgradeBuilding', [buldingEntity], UpgradeBuildingSystemId,`Upgrading ${buildingType} to level ${requiredLevel}`);
                             YeomenAI.statusMessage(`Successfully upgraded ${buildingType} to level ${requiredLevel}`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                         } catch (err) {
                             YeomenAI.statusMessage(`Failed to upgrade ${buildingType} to level ${requiredLevel}: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);

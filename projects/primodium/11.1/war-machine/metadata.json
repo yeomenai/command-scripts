@@ -1,5 +1,5 @@
 {
-    "version": "1.1.6",
+    "version": "1.1.7",
     "name": "War machine",    
     "description": "Automatically upgrade hangars and produce new batches of units to fill the space when you have the needed resources.",
     "category": "Upgrade, Units, Hangar, Drone Factory, Workshop",

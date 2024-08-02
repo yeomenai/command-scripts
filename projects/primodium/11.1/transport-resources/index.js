@@ -3,20 +3,28 @@ const resourceDropoffAsteroid = formFields['dropoffAsteroidEntity'];
 
 const fleetEntity = formFields['fleetEntity'];
 
+const maxLoadResources = formFields['maxLoadResources'];
+
 const asteroidEntities = [resourcePickupAsteroid, resourceDropoffAsteroid];
 
 const FleetMoveSystemId = PrimodiumYeomen.SYSTEMS.FleetSendSystem;
 const FleetTransferSystemId = PrimodiumYeomen.SYSTEMS.TransferSystem;
 
- //Load resources   
-let maxResources = {
-    [PrimodiumYeomen.RESOURCES.IRON.ID]: 20000,
-    [PrimodiumYeomen.RESOURCES.COPPER.ID]: 20000,
-    [PrimodiumYeomen.RESOURCES.LITHIUM.ID]: 20000,
-    [PrimodiumYeomen.RESOURCES.IRON_PLATE.ID]: 20000,
-    [PrimodiumYeomen.RESOURCES.ALLOY.ID]: 20000,
-    [PrimodiumYeomen.RESOURCES.PV_CELL.ID]: 20000
-};
+//Load resources   
+//let maxResources = {
+//    [PrimodiumYeomen.RESOURCES.IRON.ID]: 20000,
+//    [PrimodiumYeomen.RESOURCES.COPPER.ID]: 20000,
+//    [PrimodiumYeomen.RESOURCES.LITHIUM.ID]: 20000,
+//    [PrimodiumYeomen.RESOURCES.IRON_PLATE.ID]: 20000,
+//    [PrimodiumYeomen.RESOURCES.ALLOY.ID]: 20000,
+//    [PrimodiumYeomen.RESOURCES.PV_CELL.ID]: 20000
+//};
+let maxResources = {};
+Object.keys(maxLoadResources).forEach((resource) => {
+    if (PrimodiumYeomen.RESOURCES[resource]) {
+        maxResources[PrimodiumYeomen.RESOURCES[resource].ID] = parseInt(maxLoadResources[resource]);
+    }
+});
 
 let fleetMovement;
 let sourceAsteroidEntity;
@@ -54,10 +62,10 @@ const simulateGame = async () => {
 
             if (resourcePickupAsteroid === sourceAsteroidEntity) {
                 const loadResources = await PrimodiumYeomen.getAsteroidToFleetLoadResources(resourcePickupAsteroid, fleetEntity, maxResources);
-                console.log('loadResources', loadResources);
+                //console.log('loadResources', loadResources);
                 try {
                     YeomenAI.statusMessage('Transfering resources from Asteroid To Fleet');
-                    await YeomenAI.sendTransaction('transferResourcesFromAsteroidToFleet', [sourceAsteroidEntity, fleetEntity, loadResources], FleetTransferSystemId);
+                    await YeomenAI.sendTransaction('transferResourcesFromAsteroidToFleet', [sourceAsteroidEntity, fleetEntity, loadResources], FleetTransferSystemId,'Transfering resources from Asteroid To Fleet');
                     YeomenAI.statusMessage(`Successfully transferred resources from Asteroid To Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to transfer resources from Asteroid To Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
@@ -66,10 +74,10 @@ const simulateGame = async () => {
 
             if (resourceDropoffAsteroid === sourceAsteroidEntity) {
                 const unloadResources = await PrimodiumYeomen.getFleetToAsteroidUnloadResources(fleetEntity, resourceDropoffAsteroid, maxResources, []);
-                console.log('unloadResources', unloadResources);
+                //console.log('unloadResources', unloadResources);
                 try {
                     YeomenAI.statusMessage('Transfering resources from Fleet TO Asteroid');
-                    await YeomenAI.sendTransaction('transferResourcesFromFleetToAsteroid', [fleetEntity, sourceAsteroidEntity, unloadResources], FleetTransferSystemId);
+                    await YeomenAI.sendTransaction('transferResourcesFromFleetToAsteroid', [fleetEntity, sourceAsteroidEntity, unloadResources], FleetTransferSystemId, 'Transfering resources from Fleet TO Asteroid');
                     YeomenAI.statusMessage(`Successfully transferred resources from Fleet TO Asteroid`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to transfer resources from Fleet TO Asteroid: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
@@ -79,7 +87,7 @@ const simulateGame = async () => {
 
             try {
                 YeomenAI.statusMessage(`Moving fleet to ${resourceDropoffAsteroid === destinationAsteroidEntity ? 'dropoff asteroid' : 'pickup asteroid'}`);
-                await YeomenAI.sendTransaction('sendFleet', [fleetEntity, destinationAsteroidEntity], FleetMoveSystemId);
+                await YeomenAI.sendTransaction('sendFleet', [fleetEntity, destinationAsteroidEntity], FleetMoveSystemId, `Moving fleet to ${resourceDropoffAsteroid === destinationAsteroidEntity ? 'dropoff asteroid' : 'pickup asteroid'}`);
                 YeomenAI.statusMessage(`Successfully moved Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
             } catch (err) {
                 YeomenAI.statusMessage(`Failed to move Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
@@ -98,10 +106,10 @@ const simulateGame = async () => {
 
             if (resourceDropoffAsteroid === destinationAsteroidEntity) {
                 const unloadResources = await PrimodiumYeomen.getFleetToAsteroidUnloadResources(fleetEntity, resourceDropoffAsteroid, maxResources, []);
-                console.log('unloadResources', unloadResources);
+                //console.log('unloadResources', unloadResources);
                 try {
                     YeomenAI.statusMessage('Transfering resources from Fleet TO Asteroid');
-                    await YeomenAI.sendTransaction('transferResourcesFromFleetToAsteroid', [fleetEntity, destinationAsteroidEntity, unloadResources], FleetTransferSystemId);
+                    await YeomenAI.sendTransaction('transferResourcesFromFleetToAsteroid', [fleetEntity, destinationAsteroidEntity, unloadResources], FleetTransferSystemId, 'Transfering resources from Fleet TO Asteroid');
                     YeomenAI.statusMessage(`Successfully transfered resources from Fleet TO Asteroid`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to transfer resources from Fleet TO Asteroid: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
@@ -110,19 +118,19 @@ const simulateGame = async () => {
 
             if (resourcePickupAsteroid === destinationAsteroidEntity) {
                 const loadResources = await PrimodiumYeomen.getAsteroidToFleetLoadResources(resourcePickupAsteroid, fleetEntity, maxResources);
-                console.log('loadResources', loadResources);
+                //console.log('loadResources', loadResources);
                 try {
                     YeomenAI.statusMessage('Transfering resources from Asteroid To Fleet');
-                    await YeomenAI.sendTransaction('transferResourcesFromAsteroidToFleet', [destinationAsteroidEntity, fleetEntity, loadResources], FleetTransferSystemId);
+                    await YeomenAI.sendTransaction('transferResourcesFromAsteroidToFleet', [destinationAsteroidEntity, fleetEntity, loadResources], FleetTransferSystemId, 'Transfering resources from Asteroid To Fleet');
                     YeomenAI.statusMessage(`Successfully transfered resources from Asteroid To Fleet`, YeomenAI.MESSAGE_TYPES.SUCCESS);
                 } catch (err) {
                     YeomenAI.statusMessage(`Failed to transfer resources from Asteroid To Fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);
-                 }
+                }
             }
 
             try {
                 YeomenAI.statusMessage(`Moving fleet back to ${resourceDropoffAsteroid === sourceAsteroidEntity ? 'dropoff asteroid' : 'pickup asteroid'}`);
-                await YeomenAI.sendTransaction('sendFleet', [fleetEntity, sourceAsteroidEntity], FleetMoveSystemId);
+                await YeomenAI.sendTransaction('sendFleet', [fleetEntity, sourceAsteroidEntity], FleetMoveSystemId, `Moving fleet back to ${resourceDropoffAsteroid === sourceAsteroidEntity ? 'dropoff asteroid' : 'pickup asteroid'}`);
                 YeomenAI.statusMessage(`Successfully moved fleet `, YeomenAI.MESSAGE_TYPES.SUCCESS);
             } catch (err) {
                 YeomenAI.statusMessage(`Failed to move fleet: ${err.message}`, YeomenAI.MESSAGE_TYPES.ERROR);

@@ -1,5 +1,5 @@
 {
-    "version": "1.1.3",
+    "version": "1.1.4",
     "name": "Continuous bombardment",    
     "description": "Using a fleet to continuously bombard an enemy asteroid. This is useful for Capital Ships looking to take over a planet.",
     "category": "Attack, Fleet",

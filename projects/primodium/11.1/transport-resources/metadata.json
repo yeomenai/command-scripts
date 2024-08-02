@@ -1,5 +1,5 @@
 {
-    "version": "1.1.6",
+    "version": "1.1.9",
     "name": "Transport Resources",    
     "description": "This Yeoman transports resources from the pickup asteroid to the drop off asteroid.",
     "category": "Move, Resources, Fleet",
@@ -25,6 +25,25 @@
             "label": "Fleet Entity",            
             "placeholder": "Please enter your fleet",
             "required": true
+        },
+        {
+            "id": "maxLoadResources",
+            "type": "textgroup",
+            "label": "Limit on resource transfer",            
+            "placeholder": "",
+            "required": false,
+            "options": ["IRON", "COPPER", "LITHIUM", "IRON_PLATE", "ALLOY", "PV_CELL", "TITANIUM", "IRIDIUM", "KIMBERLITE"],
+            "value": {
+                "IRON": 2000000,
+                "COPPER": 2000000,
+                "LITHIUM": 2000000,
+                "IRON_PLATE": 2000000,
+                "ALLOY": 2000000,
+                "PV_CELL": 2000000,
+                "TITANIUM": 2000000,
+                "IRIDIUM": 2000000,
+                "KIMBERLITE": 2000000
+            }
         }
     ],
     "mainScript": "index.js"
