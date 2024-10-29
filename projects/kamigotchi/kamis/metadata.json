@@ -1,0 +1,17 @@
+{
+    "version": "1.1.5",
+    "name": "List Kamis",    
+    "description": "List all kamis related to account",
+    "category": "Kamis",
+    "imageUrl": "",
+    "formFields": [            
+        {
+            "id": "address",
+            "type": "text",
+            "label": "Account address",            
+            "placeholder": "Please enter address to list kamis",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

@@ -1,0 +1,58 @@
+{
+    "version": "1.1.0",
+    "name": "Mass Mine",
+    "description": "Continuously mine any resources",
+    "category": "Mine",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "mineObjectTypes",
+            "type": "checkboxgroup",
+            "label": "Mine Object Types",
+            "placeholder": "",
+            "required": false,
+            "options": [
+                "MOSS_BLOCK",    
+                "GRAVEL",            
+                "GRASS",
+                "SAND",
+                "COAL_ORE",
+                "GOLD_ORE",
+                "SILVER_ORE",
+                "DIAMOND_ORE",
+                "NEPTUNIUM_ORE",
+                "RED_MUSHROOM",
+                "ROSE"
+            ],
+            "value": [               
+                "COAL_ORE",
+                "GOLD_ORE",
+                "SILVER_ORE",
+                "DIAMOND_ORE",
+                "NEPTUNIUM_ORE"
+            ]
+        },
+        {
+            "id": "maxMineDepth",
+            "type": "number",
+            "label": "Max Mine Depth",            
+            "placeholder": "Please enter max mine depth",
+            "required": true,
+            "value": 50
+        },
+        {
+            "id": "waterCoord",
+            "type": "textgroup",
+            "label": "Move player to water coord",            
+            "placeholder": "",
+            "required": false,
+            "options": ["x", "y", "z"],
+            "value": {
+                "x": 0,
+                "y": 0,
+                "z": 0               
+            }
+        }
+    ],
+    "mainScript": "index.js"
+}

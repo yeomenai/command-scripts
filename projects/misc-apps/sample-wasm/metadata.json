@@ -1,0 +1,10 @@
+{
+    "version": "1.1.1",
+    "name": "Sample Math using Wasm",    
+    "description": "Sample Math using Wasm app with add numbers and check is prime.",
+    "category": "WASM",
+    "imageUrl": "",
+    "formFields": [         
+    ],
+    "mainScript": "index.js"
+}

@@ -1,0 +1,23 @@
+{
+    "version": "1.1.0",
+    "name": "Beam me up",
+    "description": "Return to the surface to a height you desire. This app will take your player to the height you'd like to be at. It will clear its way up and jumpBuild all the way to the top.",
+    "category": "",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "surfaceCoord",
+            "type": "textgroup",
+            "label": "Back to y coord",
+            "placeholder": "",
+            "required": true,
+            "options": [
+                "y"
+            ],
+            "value": {
+                "y": 0
+            }
+        }
+    ],
+    "mainScript": "index.js"
+}

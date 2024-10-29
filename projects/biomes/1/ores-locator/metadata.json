@@ -1,0 +1,40 @@
+{
+    "version": "1.1.0",
+    "name": "Ores Locator",
+    "description": "Locate the nearest ores efficiently in 3D terrain",
+    "category": "Ores",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "objectTypes",
+            "type": "checkboxgroup",
+            "label": "Ores",
+            "placeholder": "",
+            "required": false,
+            "options": [                
+                "COAL_ORE",
+                "GOLD_ORE",
+                "SILVER_ORE",
+                "DIAMOND_ORE",
+                "NEPTUNIUM_ORE"                
+            ],
+            "value": [               
+                "COAL_ORE",
+                "GOLD_ORE",
+                "SILVER_ORE",
+                "DIAMOND_ORE",
+                "NEPTUNIUM_ORE"
+            ]
+        },
+        {
+            "id": "radius",
+            "type": "number",
+            "label": "Radius",
+            "placeholder": "Please enter radius to search",
+            "required": true,
+            "value": 10
+        }
+
+    ],
+    "mainScript": "index.js"
+}

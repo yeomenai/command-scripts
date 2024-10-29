@@ -1,0 +1,10 @@
+{
+    "version": "1.1.1",
+    "name": "Sample Counter",    
+    "description": "Sample Counter app with increment,decrement and getCount.",
+    "category": "Counter",
+    "imageUrl": "",
+    "formFields": [         
+    ],
+    "mainScript": "index.js"
+}
