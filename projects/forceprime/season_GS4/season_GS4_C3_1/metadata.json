@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "name": "Dragon Path",    
+    "description": "Follow the Dragon Path and defeat the Boss in the castle to win",
+    "category": "Dragon, Boss",
+    "imageUrl": "",
+    "formFields": [		
+        {
+            "id": "walletAddress",
+            "type": "text",
+            "label": "Wallet Address",            
+            "placeholder": "Please enter your wallet address",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

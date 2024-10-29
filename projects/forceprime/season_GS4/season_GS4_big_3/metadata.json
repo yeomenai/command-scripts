@@ -1,0 +1,17 @@
+{
+    "version": "1.0.0",
+    "name": "Forgotten Shrine of Defence",    
+    "description": "You need to visit a Shrine of Defence to win. Complete the task in less than 70 days to get an extra score. Every remaining day will give you 1,000 points",
+    "category": "Shrine of Defence",
+    "imageUrl": "",
+    "formFields": [		
+        {
+            "id": "walletAddress",
+            "type": "text",
+            "label": "Wallet Address",            
+            "placeholder": "Please enter your wallet address",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

@@ -1,0 +1,46 @@
+{
+    "version": "1.1.0",
+    "name": "Burrow Mine",
+    "description": "Burrow mine",
+    "category": "Mine",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "mineObjectTypes",
+            "type": "checkboxgroup",
+            "label": "Mine Object Types",
+            "placeholder": "",
+            "required": false,
+            "options": [
+                "MOSS_BLOCK",    
+                "GRAVEL",            
+                "GRASS",
+                "SAND",
+                "COAL_ORE",
+                "GOLD_ORE",
+                "SILVER_ORE",
+                "DIAMOND_ORE",
+                "NEPTUNIUM_ORE",
+                "RED_MUSHROOM",
+                "ROSE"
+            ],
+            "value": [               
+                "COAL_ORE",
+                "GOLD_ORE",
+                "SILVER_ORE",
+                "DIAMOND_ORE",
+                "NEPTUNIUM_ORE"
+            ]
+        },
+        {
+            "id": "maxMineDepth",
+            "type": "number",
+            "label": "Max Mine Depth",            
+            "placeholder": "Please enter max mine depth",
+            "required": true,
+            "value": 50
+        }    
+        
+    ],
+    "mainScript": "index.js"
+}
