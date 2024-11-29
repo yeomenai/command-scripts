@@ -1,0 +1,32 @@
+{
+    "version": "1.1.0",
+    "name": "Feed kami",
+    "description": "Feed kami",
+    "category": "",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "feedTime",
+            "type": "number",
+            "label": "Feed Time",
+            "placeholder": "Please enter feed time (Minutes)",
+            "required": true,
+            "value": 120
+        },
+        {
+            "id": "kamiId",
+            "type": "text",
+            "label": "Kami Id",
+            "placeholder": "Please enter Kami Id",
+            "required": true
+        },
+        {
+            "id": "objectId",
+            "type": "text",
+            "label": "Object Id",
+            "placeholder": "Please enter Object Id",
+            "required": true
+        }
+    ],
+    "mainScript": "index.js"
+}

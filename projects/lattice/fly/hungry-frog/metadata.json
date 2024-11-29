@@ -1,0 +1,18 @@
+{
+    "version": "1.1.0",
+    "name": "The hungry frog!",
+    "description": "This frog eats everything that it can. It will find, hunt and get everything it can. It will find you and it will eat you!",
+    "category": "",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "delay",
+            "type": "number",
+            "label": "Delay in millisecs",
+            "placeholder": "Please enter delay for movement in millisecs",
+            "required": true,
+            "value": 800
+        }
+    ],
+    "mainScript": "index.js"
+}
