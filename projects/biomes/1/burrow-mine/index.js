@@ -157,10 +157,9 @@ const simulateGame = async () => {
                     }
                 }
 
-                //Filter max depath allowed
-                allOresBlocks = allOresBlocks.filter(block => {
-                    const depthDifference = Math.abs(currentPositionCoord.y - block.y);
-                    return depthDifference <= MAX_MINE_DEPTH;
+                //Filter max depth allowed
+                allOresBlocks = allOresBlocks.filter(block => {                    
+                    return  block.y >= MAX_MINE_DEPTH;
                 })
 
                 // Sort all ores by distance

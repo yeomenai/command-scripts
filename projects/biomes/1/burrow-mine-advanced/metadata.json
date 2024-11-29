@@ -11,12 +11,12 @@
             "label": "Mine Object Types",
             "placeholder": "",
             "required": false,
-            "options": [
+            "options": [                
                 "COAL_ORE",
                 "GOLD_ORE",
                 "SILVER_ORE",
                 "DIAMOND_ORE",
-                "NEPTUNIUM_ORE"
+                "NEPTUNIUM_ORE"               
             ],
             "value": [
                 "COAL_ORE",
@@ -33,6 +33,14 @@
             "placeholder": "Please enter maximum mining depth (Max: -160 Y-Axis).",
             "required": true,
             "value": -120
+        },
+        {
+            "id": "dropObjects",
+            "type": "checkbox",
+            "label": "Drop Gravel & Dirt",
+            "placeholder": "",
+            "required": false,
+            "value": false
         }
     ],
     "mainScript": "index.js"

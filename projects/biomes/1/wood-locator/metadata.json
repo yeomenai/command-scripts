@@ -1,0 +1,37 @@
+{
+    "version": "1.1.0",
+    "name": "Wood Locator",
+    "description": "Locate the nearest wood efficiently in 3D terrain",
+    "category": "Wood",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "objectTypes",
+            "type": "checkboxgroup",
+            "label": "Wood",
+            "placeholder": "",
+            "required": false,
+            "options": [
+                "OAK_LOG",
+                "SAKURA_LOG",
+                "RUBBER_LOG",
+                "BIRCH_LOG"
+            ],
+            "value": [
+                "OAK_LOG",
+                "SAKURA_LOG",
+                "RUBBER_LOG",
+                "BIRCH_LOG"
+            ]
+        },
+        {
+            "id": "radius",
+            "type": "number",
+            "label": "Radius",
+            "placeholder": "Please enter radius to search",
+            "required": true,
+            "value": 10
+        }
+    ],
+    "mainScript": "index.js"
+}

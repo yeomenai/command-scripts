@@ -11,6 +11,7 @@ const simulateGame = async () => {
     do {
         try {
             YeomenAI.statusMessage('Running code script started');
+            
 
             const playerAddress = YeomenAI.ACCOUNT.delegator || YeomenAI.ACCOUNT.address;
             const playerRecord = await BiomesYeomen.getPlayerRecord(ethers.utils.hexZeroPad(playerAddress, 32));
@@ -48,6 +49,8 @@ const simulateGame = async () => {
                 YeomenAI.exit(0);
             }
 
+            await displayStats();
+
             //Login player
             try {
 
@@ -80,7 +83,7 @@ const simulateGame = async () => {
             }
 
 
-            while (currentPositionCoord.y <= surfaceCoord.y) {
+            while (currentPositionCoord.y < surfaceCoord.y) {
                 console.log(`Current Y level: ${currentPositionCoord.y}`);
 
                 //Mine if up above is block
@@ -132,7 +135,27 @@ const simulateGame = async () => {
 
                 // Update currentPositionCoord without re-declaring it
                 currentPositionCoord = await getPlayerCurrentPosition();
+                await displayStats();
             }
+
+            async function displayStats() {
+                let markdown = ``;
+
+                // Use a fallback to ensure currentPositionCoord and surfaceCoord are defined
+                const targetDepthY = surfaceCoord?.y || 0;
+                const currentDepthY = currentPositionCoord?.y || 0;
+                const elevationRemaining = Math.abs(targetDepthY - currentDepthY);
+
+                markdown += `\n#### Overall Stats\n`;
+                markdown += `|                        |       |       |\n`;
+                markdown += `|------------------------|-------|-------|\n`;
+                markdown += `| Target depth (y)       |       |   ${targetDepthY}   |\n`;
+                markdown += `| Current depth (y)      |       |   ${currentDepthY}   |\n`;
+                markdown += `| Elevation remaining    |       |   ${elevationRemaining}   |\n`;
+
+                await YeomenAI.markdown(markdown);
+            }
+
 
             YeomenAI.statusMessage('Running code script completed', YeomenAI.MESSAGE_TYPES.SUCCESS);
             YeomenAI.exit(0);
