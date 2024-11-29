@@ -1,0 +1,9 @@
+{
+    "version": "1.1.0",
+    "name": "The lazy frog!",
+    "description": "This frog rarely, it looks like a statue. However! get very close to it and it will eat you!",
+    "category": "",
+    "imageUrl": "",
+    "formFields": [],
+    "mainScript": "index.js"
+}

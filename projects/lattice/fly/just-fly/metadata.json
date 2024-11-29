@@ -1,0 +1,26 @@
+{
+    "version": "1.1.0",
+    "name": "Just a Fly!",
+    "description": "Random movements of the fly, it looks random but makes sense to the fly ofcouse! The fly does not leave the spawn radius.",
+    "category": "",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "radius",
+            "type": "number",
+            "label": "Radius",
+            "placeholder": "Please enter radius for movement",
+            "required": true,
+            "value": 5
+        },
+        {
+            "id": "delay",
+            "type": "number",
+            "label": "Delay in millisecs",
+            "placeholder": "Please enter delay for movement in millisecs",
+            "required": true,
+            "value": 500
+        }
+    ],
+    "mainScript": "index.js"
+}
