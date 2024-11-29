@@ -1,0 +1,42 @@
+{
+    "version": "1.1.0",
+    "name": "Wonder builder",
+    "description": "Creates a detailed 3D structure based on specified coordinates and building ID",
+    "category": "Build",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "buildingId",
+            "type": "text",
+            "label": "Building ID",
+            "placeholder": "Please enter buiulding ID",
+            "required": true
+        },
+        {
+            "id": "buildStartPositionCoord",
+            "type": "textgroup",
+            "label": "Start position coord",
+            "placeholder": "",
+            "required": true,
+            "options": [
+                "x",
+                "y",
+                "z"
+            ],
+            "value": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+            }
+        },
+        {
+            "id": "useColoredObjects",
+            "type": "checkbox",
+            "label": "Use Colored Objects",
+            "placeholder": "",
+            "required": false,
+            "value": false
+        }
+    ],
+    "mainScript": "index.js"
+}
