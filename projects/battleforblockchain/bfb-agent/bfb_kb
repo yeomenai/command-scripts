@@ -1,0 +1,1068 @@
+# Game Overview
+
+# Game description
+Battle for Blockchain (BFB) is an innovative MMO Auto Battler that marks a significant leap in on-chain gaming. Developed by Mintersworld, BFB is a simulation platform for game-like autonomous warfare, powered by socio-economic incentives and integrated with crypto networks. It's a multiplayer experience set in the heart of Culinaris, where every move can alter the fate of kingdoms. As a user you join one of the two Kingdoms Forktown or Spooncity.
+
+# Game information:
+  ## Kingdom
+    Forktown(teamLeft)
+    Spooncity(teamRight)
+
+## Locations with location ID
+    PICKLESTADT: 1
+    AVOCADIA: 2
+    OVENBURG: 3
+    RADISH MINE: 4
+    FRUITY CREEK: 5
+    SALAD PLAINS: 6
+    CHOPSHIP: 7
+    PEACHTREE SHRINE: 8
+    POT CAVERN: 9
+    FALLEN UTENSILS: 10
+    DRAGONFRUIT LAIR: 11
+    SRIRACHA ICELAND: 12
+    SPIKY EDGE: 13
+    CARAMEL GROTTO: 14
+    SUNDAE DELIGHTS: 15
+    SPOOKY NUT: 16
+    FUNGI DEN: 17
+    PEPPERCANO: 18
+    SPOREWOODS: 19
+    GRAND BROCCOLI: 20
+    FROGWISE SUMMIT: 21
+    SWEETLEY: 22
+    CITRUS SANCTUM: 23
+    TEATON: 24
+    GATE I: 1001
+    GATE II: 1002
+    GATE III: 1003
+    INNER CITY I: 1004
+    INNER CITY II: 1005
+    THRONEROOM: 1006
+
+
+## UnitTypes Internal Names
+    Bomb: 0
+    Blocker: 1
+    Archer: 2
+    Squire: 3
+    Healer: 4
+    Mage: 5
+    Barbarian: 6
+    Alchemist: 7
+    Butcher: 8
+    Shaman: 9
+    Assassin: 10
+    Druid: 11
+    Spellcannon: 12
+    Phantomleech: 13
+
+## UnitTypes actual names displayed to the user (Maps to actual UnitTypes Internal Names)
+    Kabango: 0
+    Rootguard: 1
+    Gunmak: 2
+    Snoodle: 3
+    Hechoy: 4
+    Boilix: 5
+    Hamgar: 6
+    Mushie: 7
+    Waxon: 8
+    Potano: 9
+    Roe: 10
+    Brocco: 11
+    Lager: 12
+    Dorayaki: 13            
+
+
+## Game guidelines:
+    
+    1. Open Bentobox:
+    a. Check Player lootboxes count
+    b. Execute commitRevealLootBox, pushBlock, commitRevealLootBox functions to open a single bentobox
+
+    2. Attack Location
+    a. Check if player has warPermit, required warPermit value from player is 10000 else execute renewWarPermit
+    b. Check location can be attacked
+    c. See if player ArmyGeneral exists and not in an active battle
+    d. Disband Army and Create new Army
+    e. Buy units if player is not having the required units to attack
+    f. Spawn units at player side coords
+    g. Check if both players are ready for battle / After 10 minutes battle is ready
+    g. Start fighting with toggleBattlePhase
+    h. Process the battle with multipleProcessing until battle is complete
+    i. Decide who won the battle
+    j. Claim rewards
+
+    3. Defend Location
+    a. Check if player has warPermit, required warPermit value from player is 10000 else execute renewWarPermit
+    b. Check location can be defended
+    c. On Going battles should exists on a location and battle state should be WaitingForOpponent
+    d. See if player ArmyGeneral exists and not in an active battle
+    e. Disband Army and Create new Army
+    f. Buy units if player is not having the required units to defend
+    g. Spawn units at player side coords
+    h. Check if both players are ready for battle / After 10 minutes battle is ready
+    i. Start fighting with toggleBattlePhase
+    j. Process the battle with multipleProcessing until battle is complete
+    k. Decide who won the battle
+    l. Claim rewards
+
+	4. Buying units
+Check if it is a valid unit
+While buying units use _spendingCap = "2000000000000000000000" as default if not specified.
+
+
+## Game API and Interface guidelines
+1. Unit price is returned in the smallest unit, convert value returned by dividing by 10^18, eg 1000000000000000000 smallest unit = 1 Gold  
+
+2. When interacting with the Contract, depending on the ABI,
+a. If the stateMutability is pure or view, use the getContractData function to retrieve data without modifying the blockchain state.
+b. If the stateMutability is nonpayable or payable, use the executeTransaction function to modify the contract state or send ETH.
+c. Ensure executeTransaction is used when invoking state-changing functions, and payable functions should include an option to specify ETH to send.
+
+3. Always convert the gold resource value from its smallest unit to the actual Gold amount by dividing by 10^18. Display the converted value in prompts, reports, and summaries. Additionally, include the formatted value with up to two decimal places when appropriate.
+eg: raw gold balance: 33101180000000000000000. converted gold:  33101.18 Gold
+
+4. Retreive all locations details using getAllLocations(). Compare the location's isTeamRight value with the player's isTeamRight value. If the values are different, it means the location belongs to an opposing team, and the player can attack that location. If the values are same, it means the location belongs to the player team, and the player can defend that location. Collect and list all such locations where an attack or defend is possible.
+
+
+
+
+# Yeomen Apps
+## Based on the user's request, determine the appropriate Yeomen App to execute. Yeomen Apps are standalone apps. These apps are powerful enough to be delegated to entirely like a handover. They are usually complete apps capable of managing all aspects of the operations. Use the following mapping with passing formFields as options if compulsory:
+   Bento Boxes (AppId: 55): If the user asks to open bento boxes, reveal items, or check contents.
+   eg: {"name":"invokeApp","arguments":{"appId":_,"options":{"formFields": {} }}}
+
+   Attack Strategy (AppId: 59): If the user wants to attack a location, raid, or engage in combat automatically.
+   eg: {"name":"invokeApp","arguments":{"appId":_,"options":{"formFields": {"attackLocationId":_,"spawnUnits": _,"spendingCap":2000} }}}   
+
+   Defend Strategy (AppId: 78): If the user wants to defend a location, fortify, or prevent attacks automatically.
+   eg: {"name":"invokeApp","arguments":{"appId":_,"options":{"formFields": {"defendLocationId":_,"spawnUnits": _,"spendingCap":2000} }}}
+
+  spawnUnits in yeomen app
+  eg: "Kabango, Rootguard, Gunmak, Snoodle,..... (Fill the remaining spawnUnits based on location units required 16 or 24 units)"
+   - The spawnUnits field is a comma-separated list of unit names.
+   - Each unit name represents one unit to be spawned.
+   - The order doesn’t matter, but quantity does—repeat names to spawn multiple units of the same type.
+
+   Execute the corresponding Yeomen App and return a response confirming the action.                
+              
+
+# Best Practices
+   - Always first use GetPlayer to get the player details.
+   - Always validate player_address before querying.
+
+
+## Game Contracts & ABI
+- Contract Address: 0x9c949ad820cf974e1ba8526a7849070abc389123
+- Contract ABI: {{IMPORT: yeomen/bfb_abi}}      
+
+### Game ABI Explained
+
+*   **addQuestProgress(_player address, \_questId uint32, \_progress uint32):** Allows adding progress to a specific quest for a player.  It takes the player's address, the quest ID, and the amount of progress to add as input. This function does not return any value.
+
+*   **airdropResources(_player address, \_gold uint256, \_wood uint256, \_stone uint256, \_iron uint256, \_sugar uint256):**  Gives a specific player certain amount of game resources. The resources included are Gold, Wood, Stone, Iron and Sugar. This function does not return any value.
+
+*   **airdropUnit(_player address, \_amount uint32, \_unitType uint8):** Airdrops a specified amount of a certain type of unit to a player. `_unitType` is an enum. The function does not return any value.
+
+*   **airdropUnit(_unitType uint8, \_amount uint32, \_player address):** Airdrops a specified amount of a certain type of unit to a player. This is a variant of the `airdropUnit` function, but the arguments are ordered differently. The function does not return any value.
+
+*   **airdropVP(\_teamRight bool, \_isSiege bool, \_amount uint32):** Airdrops victory points (VP) based on team and siege status. Takes a boolean indicating the team, a boolean indicating siege, and the amount of VP. The function does not return any value.
+
+*   **areUnitsLeft(_battleId bytes32):** Checks if any units are left in a given battle. Takes a battle ID as input and returns a boolean indicating if units remain.
+
+*   **assignLootbox(_player address):** Assigns a lootbox to a specific player. It takes the player's address as input and does not return any value.
+
+*   **attackWithArmy(_location uint32):** Initiates an attack with the player's army on a specified location.  Takes the location ID as input and returns nothing.
+
+*   **batchCall(systemCalls tuple[]):** Executes multiple system calls in a single transaction. Accepts an array of `SystemCallData` structs, each specifying a system ID and the corresponding call data, and returns an array of bytes representing each return data.
+
+*   **batchCallFrom(systemCalls tuple[]):** Executes multiple system calls from different delegators in a single transaction. Accepts an array of `SystemCallFromData` structs, each specifying a from address, a system ID, and the corresponding call data, and returns an array of bytes representing each return data.
+
+*   **bruteforce():**  Potentially an internal function for testing or debugging purposes. This function does not return any value.
+
+*   **buyUnit(_unitType uint8, \_amount uint32, \_spendingCap uint256):** Allows a player to purchase a specific amount of a certain unit type. It takes the unit type, amount, and a spending cap as input. The `_unitType` is an enum. This function does not return any value.
+
+*   **call(systemId bytes32, callData bytes):** Calls a system with the provided calldata.  Takes a ResourceID `systemId` and bytes `callData` and return the returned bytes.
+
+*   **callFrom(delegator address, systemId bytes32, callData bytes):** Calls a system from the provided delegator. Takes the `delegator` address, a ResourceID `systemId` and bytes `callData` and returns the returned bytes.
+
+*   **canCompleteQuest(_questToComplete uint32):** Checks if a player has met the requirements to complete a quest. It takes the quest ID as input and returns a boolean indicating whether the quest can be completed.
+
+*   **claimBattleRewards():** Allows a player to claim rewards from completed battles. The rewards typically include lootboxes and resources.
+
+*   **claimLocationVP(_locationId uint32):** Claims victory points (VP) for controlling a location. Takes the location ID as input.
+
+*   **claimResources(_structureType uint8):** Allows a player to claim resources generated by their structures. It takes the structure type (e.g., lumberyard, quarry) as input. The `_structureType` is an enum.
+
+*   **claimWarRewards():** Allows a player to claim rewards from participating in a war. It rewards players based on whether their team won and their contribution to the war effort.
+
+*   **commitRevealLootBox():** Function to commit to reveal the lootbox.
+
+*   **completeQuest(_questToComplete uint32):** Completes a specific quest for the player, granting them rewards. Takes the ID of the quest to complete as input.
+
+*   **concludeSiegeForce():** Concludes the siege force phase.
+
+*   **concludeWarClaimingPeriod(_warId uint32):** Finalizes the claiming period for war rewards, allowing players to claim their rewards. Takes a War ID as an argument.
+
+*   **conquerLocationForce(_locationId uint32):** Concludes the conquering process for a specific location. Takes a Location ID as an argument.
+
+*   **contributeToBuilding(_building uint8, \_resources uint256[5]):** Allows a player to contribute resources to the construction or upgrade of a building. Takes the building type and an array of 5 `uint256` representing resources.  The `_building` is an enum. This function does not return any value.
+
+*   **createArmy(_otherCaptains address[]):** Allows a player to create a new army, potentially inviting other players to join as captains. It takes an array of addresses representing the other captains to invite.
+
+*   **creator():** Returns the address of the contract creator.
+
+*   **declineInvite(_armyId bytes32):** Allows a player to decline an invitation to join an army. It takes the army ID as input and does not return any value.
+
+*   **defendWithArmy(_location uint32, \_battleId bytes32):** Allows a player to defend a specific location with their army during a battle. It takes the location ID and the battle ID as input.
+
+*   **deleteRecord(tableId bytes32, keyTuple bytes32[]):** Deletes a record from a specific table in the World's storage. Takes a table ID and an array of keys that identify the record.
+
+*   **disbandArmy():** Allows the player to disband their army.
+
+*   **downgradeBuildingLevel(_building uint8, \_isTeamRight bool):** Downgrades the level of a building. The `_building` is an enum.  This function does not return any value.
+
+*   **equipChaosChocolate(_unitId bytes32, \_laneY uint32):** Equips the `ChaosChocolate` item to a specific unit on a lane.
+
+*   **equipInvincibleIcingIII(_unitId bytes32, \_targetUnit bytes32):** Equips the `InvincibleIcingIII` item to a specific unit with other target unit.
+
+*   **equipItem(_unitId bytes32, \_item uint8):** Allows a player to equip a specific item to a unit. It takes the unit ID and the item type as input. The `_item` is an enum. This function does not return any value.
+
+*   **equipPomegranatePulverizer(_unitId bytes32, \_vectorX uint32, \_vectorY int32):** Equips the `PomegranatePulverizer` item to a specific unit.
+
+*   **equipQuantumQuicheII(_firstUnitId bytes32, \_secondUnitId bytes32):** Equips the `QuantumQuicheII` item to a two specific unit.
+
+*   **equipQuantumQuicheIV(_unitId bytes32, \_secondLaneY uint32):** Equips the `QuantumQuicheIV` item to a unit with second lane.
+
+*   **equipSouffleSurge(_unitId bytes32, \_targetUnits bytes32[], \_itemType uint8):** Equips the `SouffleSurge` item to a specific unit and other target units. The `_itemType` is an enum.
+
+*   **equipStomachBitters(_unitId bytes32):** Equips the `StomachBitters` item to a specific unit.
+
+*   **equipTabulaRice(_unitId bytes32, \_newUnitType uint8):** Equips `TabulaRice` to a specific unit, potentially changing its type. The `_newUnitType` is an enum.
+
+*   **flushAllUpgrades():** Flush all upgrades.
+
+*   **getAllStructuresCost(_player address):** Returns the building costs of a player.
+
+*   **getAllUnitsPrices():** Returns array of prices of all units.
+
+*   **getBattleRewardsToClaim():** Retrieves the battle rewards available for the caller to claim. The rewards typically include lootboxes and resources.
+
+*   **getBattleUnitsArray(_battleId bytes32):** Retrieves a list of unit IDs in the battle.
+
+*   **getCaptainsBattles(_player address):** Get battle list the player participated.
+
+*   **getCommitBlock(_player address):** Get last block player committed in looting.
+
+*   **getCurrentBuildingLevel(_building uint8, \_isTeamRight bool):** Returns the current level of a specific building for a specific team. It takes the building type (as an enum) and a boolean indicating the team as input.
+
+*   **getCurrentUnitPrice(_unitType uint8, \_amount uint32):** Returns the current price for a specific amount of a certain unit type. It takes the unit type (as an enum) and the amount as input.
+
+*   **getDynamicField(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8):** Retrieves data from a dynamic field within a specific record in a table.
+
+*   **getDynamicFieldLength(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8):** Retrieves the length of a dynamic field within a specific record in a table.
+
+*   **getDynamicFieldSlice(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8, start uint256, end uint256):** Retrieves a slice of data from a dynamic field within a specific record in a table.
+
+*   **getField(tableId bytes32, keyTuple bytes32[], fieldIndex uint8, fieldLayout bytes32):** Retrieves a field from a record in a table, using the table ID, key tuple, field index, and field layout.
+*   **getField(tableId bytes32, keyTuple bytes32[], fieldIndex uint8):** Retrieves a field from a record in a table, using the table ID, key tuple, and field index.
+
+*   **getFieldLayout(tableId bytes32):** Returns FieldLayout info from tableId.
+
+*   **getFieldLength(tableId bytes32, keyTuple bytes32[], fieldIndex uint8, fieldLayout bytes32):** Retrieves the length of a particular field in a specific record.
+*   **getFieldLength(tableId bytes32, keyTuple bytes32[], fieldIndex uint8):** Retrieves the length of a particular field in a specific record.
+
+*   **getGeneralArmy(_player address):** Retrieves the army ID of the general's army.
+
+*   **getKeySchema(tableId bytes32):** Retrieves the schema for the key of a specific table.
+
+*   **getPNL(_player address):** Gets the profit and loss stats for a player based on their battle history.
+
+*   **getPlayerInventory(_player address):** Retrieves the inventory of a specific player, including the quantity of each item.
+
+*   **getPlayerStructures(_player address):** Retrieves data of player structure.
+
+*   **getPlayerTitle(_player address):** Retrieves the title of a specific player. It takes the player's address as input and returns a string.
+
+*   **getRecord(tableId bytes32, keyTuple bytes32[], fieldLayout bytes32):** Retrieves an entire record from a specific table in the World's storage.
+*   **getRecord(tableId bytes32, keyTuple bytes32[]):** Retrieves an entire record from a specific table in the World's storage.
+
+*   **getResourcesLastTimeCollected(_player address):** Retrieves the last time a player collected resources.
+
+*   **getResourcesToClaim(_player address):** Calculates claimable resources for a player.
+
+*   **getStaticField(tableId bytes32, keyTuple bytes32[], fieldIndex uint8, fieldLayout bytes32):** Retrieves a static field from a specific record in a table.
+
+*   **getTimeToFill(_player address):** Retrieves the lumberyard, quarry and iron mine time of a player.
+
+*   **getValueSchema(tableId bytes32):** Retrieves the schema for the value of a specific table.
+
+*   **getWarRewardsToClaim(_player address):** Retrieves information about war rewards a player can claim. Returns the rewards, team win status, and claim history.
+
+*   **goToNextWar(_isTeamRightWinner bool):** Advances the game to the next war. Takes a boolean indicating if the team right won the last war.
+
+*   **grantAccess(resourceId bytes32, grantee address):** Grants access to a specific resource (e.g., a system or table) to a specified address. This enables the grantee to perform actions on that resource.
+
+*   **hotfix716():** Executes hotfix.
+
+*   **initialize(initModule address):** Initializes the contract, typically called during deployment. It takes the address of an initialization module as input.
+
+*   **installModule(module address, encodedArgs bytes):** Installs a module into the World, extending its functionality. Requires the module address and encoded initialization arguments.
+
+*   **installRootModule(module address, encodedArgs bytes):** Installs a root module into the World, typically for core functionality. Takes the module address and encoded initialization arguments.
+
+*   **inviteToArmy(_playerToInvite address):** Allows a player to invite another player to join their army. It takes the address of the player to invite as input.
+
+*   **isKingdomSelected(_player address):** Checks if a player has selected a kingdom (team). It takes the player's address as input and returns a boolean indicating their kingdom selection status.
+
+*   **isPlayerRegistered(_player address):** Checks if a player is registered in the game. It takes the player's address as input and returns a boolean indicating their registration status.
+
+*   **joinArmy(_armyId bytes32):** Allows a player to join an existing army. It takes the army ID as input.
+
+*   **kickFromArmy(_playerToKick address):** Allows an army captain to remove a player from their army. It takes the address of the player to kick as input.
+
+*   **killAllBattlesPossible():** Try to clear all possible battles.
+
+*   **killBattle(_battleId bytes32):** Allows to manually kill battle.
+
+*   **killBattleForce(_battleId bytes32):** Allows to force kill battle.
+
+*   **leaveArmy(_armyId bytes32):** Allows a player to leave an army. It takes the army ID as input.
+
+*   **multipleProcessing(_iterations uint32, \_battleId bytes32):** Processes the battle multiple times for testing
+
+*   **numberInQueueToUnitId(_id uint32, \_isTeamRight bool, \_battleId bytes32):** Returns a unit ID in a battle.
+
+*   **petJennie():** Pet Jennie, most likely for debug purpose.
+
+*   **popFromDynamicField(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8, byteLengthToPop uint256):** Removes data from the end of a dynamic field within a specific record in a table.
+
+*   **processBattle(_battleId bytes32):** Processes a specific battle, advancing the combat simulation. It takes the battle ID as input.
+
+*   **pushBlock():** Push block.
+
+*   **pushToDynamicField(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8, dataToPush bytes):** Appends data to a dynamic field within a specific record in a table.
+
+*   **randomizeAddress(_player address, \_blockTimestamp uint256):** A helper function that returns pseudorandom address.
+
+*   **randomizeBool(_player address, \_blockTimestamp uint256):** A helper function that returns pseudorandom boolean.
+
+*   **randomizeBytes32(_player address, \_blockTimestamp uint256):** A helper function that returns pseudorandom bytes32.
+
+*   **randomizeString(_player address, \_blockTimestamp uint256):** A helper function that returns pseudorandom String.
+
+*   **randomizeUint256(_player address, \_blockTimestamp uint256):** A helper function that returns pseudorandom uint256.
+
+*   **randomizeUint32(_player address, \_blockTimestamp uint256):** A helper function that returns pseudorandom uint32.
+
+*   **registerDelegation(delegatee address, delegationControlId bytes32, initCallData bytes):** Registers a delegation relationship, allowing the delegatee to act on behalf of the caller.
+
+*   **registerFunctionSelector(systemId bytes32, systemFunctionSignature string):** Registers a function selector for a given system ID and system function signature.  Returns the `worldFunctionSelector`.
+
+*   **registerNamespace(namespaceId bytes32):** Registers a new namespace within the World. Namespaces help to organize resources and prevent naming collisions.
+
+*   **registerNamespaceDelegation(namespaceId bytes32, delegationControlId bytes32, initCallData bytes):** Registers delegation to namespace.
+
+*   **registerRootFunctionSelector(systemId bytes32, worldFunctionSignature string, systemFunctionSignature string):** Registers root function selector. Returns `worldFunctionSelector`.
+
+*   **registerStoreHook(tableId bytes32, hookAddress address, enabledHooksBitmap uint8):** Registers hook to tableID.
+
+*   **registerSystem(systemId bytes32, system address, publicAccess bool):** Registers a new system within the World. Systems are smart contracts that implement game logic.
+
+*   **registerSystemHook(systemId bytes32, hookAddress address, enabledHooksBitmap uint8):** Registers hook to systemID.
+
+*   **registerTable(tableId bytes32, fieldLayout bytes32, keySchema bytes32, valueSchema bytes32, keyNames string[], fieldNames string[]):** Registers a new table within the World's storage. Tables are used to store game data.
+
+*   **removeInvite(_playerToRemove address):** Removes a pending invitation to join an army. Takes the address of player to be removed from the invite list.
+
+*   **renewWarPermit():** Allows a player to renew their war permit, enabling them to participate in wars. This may involve paying a fee.
+
+*   **renounceOwnership(namespaceId bytes32):** Transfers ownership of the contract to the zero address, effectively making it unowned. Can only be called by the owner.
+
+*   **repairLocation(_locationId uint32):** Repairs a damaged location, restoring its functionality. Takes location ID as parameter.
+
+*   **resetBuildingDev(_building uint8, \_isTeamRight bool):** Resets building state for development.
+
+*   **resetTeamTable():** Resets team table.
+
+*   **resetUnitUpgradeDev(_unitType uint8, \_isTeamRight bool):** Resets unit upgrade data for development purposes.
+
+*   **returnWarPermit():** Allows a player to return their war permit, potentially receiving a refund of any associated fees.
+
+*   **revokeAccess(resourceId bytes32, grantee address):** Revokes access to a specific resource from a specified address. This restricts the grantee from performing actions on that resource.
+
+*   **selectKingdom(_teamRight bool, \_title string):** Allows a player to select a kingdom (team) to align with. Takes a boolean indicating the team and their chosen title as input.
+
+*   **setArmyReady(_battleId bytes32):** Sets army ready to battle by the battleId
+
+*   **setDynamicField(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8, data bytes):** Sets (overwrites) the data in a dynamic field within a specific record in a table.
+
+*   **setField(tableId bytes32, keyTuple bytes32[], fieldIndex uint8, data bytes):** Sets the value of a specific field within a record in a table.
+*   **setField(tableId bytes32, keyTuple bytes32[], fieldIndex uint8, data bytes, fieldLayout bytes32):** Sets the value of a specific field within a record in a table.
+
+*   **setForkQualified(_player address):** Qualified player to the fork feature.
+
+*   **setHealerBondedUnit(_healer bytes32, \_bondedUnit bytes32):** Sets a link between two units.
+
+*   **setItemToPlayer(_item uint8, \_player address):** Gives a item to a player.
+
+*   **setLastLastClaimedVp(_locationId uint32, \_timestamp uint256):** Sets last vp claimed timestamp.
+
+*   **setRecord(tableId bytes32, keyTuple bytes32[], staticData bytes, encodedLengths bytes32, dynamicData bytes):** Sets (overwrites) an entire record in a specific table in the World's storage.
+
+*   **setSpoonQualified(_player address):** Qualified player to the spoon feature.
+
+*   **setStaticField(tableId bytes32, keyTuple bytes32[], fieldIndex uint8, data bytes, fieldLayout bytes32):** Sets the value of a static field within a specific record in a table.
+
+*   **spawnFreeUnit(_battleId bytes32, \_x uint32, \_y uint32, \_type uint8):** Spawns unit without cost.
+
+*   **spawnUnit(_battleId bytes32, \_x uint32, \_y uint32, \_type uint8):** Spawns a unit at a specific location on the battlefield. Requires the battle ID, coordinates (x, y), and the unit type (as an enum).
+
+*   **spawnUnitAdmin(_battleId bytes32, \_x uint32, \_y uint32, \_unitType uint8, \_itemType uint8):** Spawns unit with specified item.
+
+*   **spendPlayerResources(_player address, \_gold uint256, \_wood uint256, \_stone uint256, \_iron uint256, \_sugar uint256):** Spend player resources.
+
+*   **spliceDynamicData(tableId bytes32, keyTuple bytes32[], dynamicFieldIndex uint8, startWithinField uint40, deleteCount uint40, data bytes):** Inserts or deletes data within a dynamic field of a specific record.
+
+*   **spliceStaticData(tableId bytes32, keyTuple bytes32[], start uint48, data bytes):** Inserts or deletes data within a static field of a specific record.
+
+*   **storeVersion():** Returns the version of the store contract.
+
+*   **toggleBattlePhase(_battleId bytes32):** Force toggle battle to next phase.
+
+*   **toggleBattlePhaseForce(_battleId bytes32):** Toggle force battle phase.
+
+*   **toggleSiegeForce(_isTeamRightWinner bool):** Toggle the siege force.
+
+*   **transferBalanceToAddress(fromNamespaceId bytes32, toAddress address, amount uint256):** Transfers funds from a namespace balance to a specific address. Requires the namespace ID, the recipient address, and the amount to transfer.
+
+*   **transferBalanceToNamespace(fromNamespaceId bytes32, toNamespaceId bytes32, amount uint256):** Transfers funds from one namespace balance to another. Requires the source namespace ID, the destination namespace ID, and the amount to transfer.
+
+*   **transferOwnership(namespaceId bytes32, newOwner address):** Transfers ownership of a specific namespace to a new owner. Only the current owner can call this function.
+
+*   **unregisterDelegation(delegatee address):** Unregisters a delegation relationship, revoking the delegatee's ability to act on behalf of the caller.
+
+*   **unregisterNamespaceDelegation(namespaceId bytes32):** Unregisters a namespace delegation, revoking the delegatee's ability to act on behalf of the namespace.
+
+*   **unregisterStoreHook(tableId bytes32, hookAddress address):** Unregisters hook to tableID.
+
+*   **unregisterSystemHook(systemId bytes32, hookAddress address):** Unregisters hook to systemID.
+
+*   **upgradeBuildingLevel(_building uint8, \_isTeamRight bool):** Upgrades the level of a building for a specific team. It takes the building type (as an enum) and a boolean indicating the team as input.
+
+*   **upgradeStructure(_slot uint256, \_structureType uint8):** Upgrades a structure.
+
+*   **useReforger(_items uint32[4]):** Allow to use Reforger.
+
+*   **worldVersion():** Returns the version of the world contract.
+
+
+
+## Game MUD Config
+{{IMPORT: yeomen/bfb_mud_config}}     
+
+
+### Game MUD TableIds
+
+| Table                     | ID                                                                 |
+|---------------------------|-------------------------------------------------------------------|
+| TeamLeft               | `0x746200000000000000000000000000005465616d4c6566740000000000000000` |
+| TeamRight              | `0x746200000000000000000000000000005465616d526967687400000000000000` |
+| GlobalBattleStat       | `0x74620000000000000000000000000000476c6f62616c426174746c6553746174` |
+| PlayerBattleStat       | `0x74620000000000000000000000000000506c61796572426174746c6553746174` |
+| Gold                   | `0x74620000000000000000000000000000476f6c64000000000000000000000000` |
+| Lootboxes              | `0x746200000000000000000000000000004c6f6f74626f78657300000000000000` |
+| ProcessParams          | `0x7462000000000000000000000000000050726f63657373506172616d73000000` |
+| Units                  | `0x74620000000000000000000000000000556e6974730000000000000000000000` |
+| UnitsCombat            | `0x74620000000000000000000000000000556e697473436f6d6261740000000000` |
+| UnitsSkillsModif       | `0x74620000000000000000000000000000556e697473536b696c6c734d6f646966` |
+| UnitConstants          | `0x74620000000000000000000000000000556e6974436f6e7374616e7473000000` |
+| ItemRarityConsta       | `0x746200000000000000000000000000004974656d526172697479436f6e737461` |
+| UnitUpgrade            | `0x74620000000000000000000000000000556e6974557067726164650000000000` |
+| MapUnits               | `0x746200000000000000000000000000004d6170556e6974730000000000000000` |
+| LeftQueue              | `0x746200000000000000000000000000004c656674517565756500000000000000` |
+| RightQueue             | `0x7462000000000000000000000000000052696768745175657565000000000000` |
+| Randomness             | `0x7462000000000000000000000000000052616e646f6d6e657373000000000000` |
+| ButcherSkillSequ       | `0x7462000000000000000000000000000042757463686572536b696c6c53657175` |
+| DruidForm              | `0x746200000000000000000000000000004472756964466f726d00000000000000` |
+| BattlePhase            | `0x6f740000000000000000000000000000426174746c6550686173650000000000` |
+| BarbarianTargets       | `0x7462000000000000000000000000000042617262617269616e54617267657473` |
+| HealerTarget           | `0x746200000000000000000000000000004865616c657254617267657400000000` |
+| PhantomleechMana       | `0x746200000000000000000000000000005068616e746f6d6c656563684d616e61` |
+| PoisonedUnits          | `0x74620000000000000000000000000000506f69736f6e6564556e697473000000` |
+| PoisonDamage           | `0x6f740000000000000000000000000000506f69736f6e44616d61676500000000` |
+| PomegranatePulve       | `0x74620000000000000000000000000000506f6d656772616e61746550756c7665` |
+| InvincibleIcingI       | `0x74620000000000000000000000000000496e76696e6369626c654963696e6749` |
+| SouffleSurgeTarg       | `0x74620000000000000000000000000000536f7566666c65537572676554617267` |
+| ChaosChocolateTa       | `0x746200000000000000000000000000004368616f7343686f636f6c6174655461` |
+| CannonSkill            | `0x6f74000000000000000000000000000043616e6e6f6e536b696c6c0000000000` |
+| UnitDesign             | `0x74620000000000000000000000000000556e697444657369676e000000000000` |
+| UnitTypeDesign         | `0x74620000000000000000000000000000556e69745479706544657369676e0000` |
+| Buildings              | `0x746200000000000000000000000000004275696c64696e677300000000000000` |
+| VillageStructure       | `0x7462000000000000000000000000000056696c6c616765537472756374757265` |
+| Generators             | `0x7462000000000000000000000000000047656e657261746f7273000000000000` |
+| Players                | `0x74620000000000000000000000000000506c6179657273000000000000000000` |
+| Rewards                | `0x7462000000000000000000000000000052657761726473000000000000000000` |
+| Army                   | `0x7462000000000000000000000000000041726d79000000000000000000000000` |
+| CallToArms             | `0x7462000000000000000000000000000043616c6c546f41726d73000000000000` |
+| Locations              | `0x746200000000000000000000000000004c6f636174696f6e7300000000000000` |
+| Artillery              | `0x74620000000000000000000000000000417274696c6c65727900000000000000` |
+| War                    | `0x7462000000000000000000000000000057617200000000000000000000000000` |
+| WarStats               | `0x7462000000000000000000000000000057617253746174730000000000000000` |
+| PlayerContributi       | `0x74620000000000000000000000000000506c61796572436f6e74726962757469` |
+| UnitSpawned            | `0x6f740000000000000000000000000000556e6974537061776e65640000000000` |
+| Siege                  | `0x7462000000000000000000000000000053696567650000000000000000000000` |
+| SiegeGoldSpent         | `0x746200000000000000000000000000005369656765476f6c645370656e740000` |
+| Battles                | `0x74620000000000000000000000000000426174746c6573000000000000000000` |
+| WarConfig              | `0x74620000000000000000000000000000576172436f6e66696700000000000000` |
+| QuestRequirement       | `0x746200000000000000000000000000005175657374526571756972656d656e74` |
+| PlayerQuestProgr       | `0x74620000000000000000000000000000506c61796572517565737450726f6772` |
+| FinalQuest             | `0x7462000000000000000000000000000046696e616c5175657374000000000000` |
+| DailyQuests            | `0x746200000000000000000000000000004461696c795175657374730000000000` |
+| QuestlineRewards       | `0x7462000000000000000000000000000051756573746c696e6552657761726473` |
+
+
+
+
+### Game MUD Config Explained
+
+*   **TeamLeft/TeamRight**: Stores the level of each unit-producing building (`bombHouseLevel`, `archerHouseLevel`, etc.) for the left and right teams in a war identified by `warId`. Likely used for determining available units and their stats.
+*   **GlobalBattleStats**: Tracks the number of units placed by each team (`isTeamRight`) in a battle (`battleId`). Useful for analytics or potentially limiting unit deployment.
+*   **PlayerBattleStats**:  Similar to `GlobalBattleStats`, but tracks units placed by individual players (`player`) in a specific battle (`battleId`).  Used for individual player statistics.
+*   **Gold**: Tracks battle gold emitted. Used for global stats of the game.
+*   **Lootboxes**:  Stores the owner (`owner`) and commitBlock for lootboxes. Used to handle lootbox claim logic.
+*   **ProcessParams**: Manages the processing indices and flags for battle resolution (`battleId`, `leftProcessIndex`, `rightProcessIndex`, `leftProcessFinished`, `rightProcessFinished`, etc.). Used to handle battle calculations in batches.
+*   **Units**:  Describes individual units in a battle (`id`, `battleId`, `unitType`, `x`, `y`, `hp`, `maxHp`, `owner`, `level`, `title`). Central table for unit data.
+*   **UnitsCombat**: Stores combat-related stats for a unit (`id`, `meleeDamage`, `rangeDamage`, `critDamage`, `critChance`, `gateDamage`, `attackRange`, `item`).  Separated from `Units` for data organization and potentially optimization.
+*   **UnitsSkillsModifiers**:  Stores skill modifiers for each team (`isTeamRight`, `shamanDamageIncrease`, `butcherHealAmount`, etc.). Used to balance the units in the game.
+*   **UnitConstants**: Defines the base stats for each unit type (`unitType`, `hp`, `mana`, `meleeDamage`, `rangeDamage`, `critChance`, `gateDamage`, `attackRange`). Used for initialization and balancing.
+*   **ItemRarityConstants**:  Stores arrays of item IDs categorized by rarity (Gray, Green, Blue, Purple, Unique). Used for lootbox generation and item availability.
+*   **UnitUpgrade**: Stores unit upgrade stats for a given building type and team (`buildingType`, `isTeamRight`, `level`, `hp`, `mana`, `meleeDamage`, `rangeDamage`, `critDamage`, `critChance`, `gateDamage`, `attackRange`, `skillModifier`).
+*   **MapUnits**:  Tracks which unit (`unitId`) occupies a specific location (`x`, `y`) on a battle map (`battleId`). Used for collision detection and movement.
+*   **LeftQueue/RightQueue**: Queues units to be processed in a battle, presumably for actions or turns (`id`, `battleId`, `unitId`).  Used in batch processing of units.
+*   **Randomness**: Stores randomness values by block number (`blockNumber`, `value`, `randomnessActive`). Used in calculations where randomness is necessary
+*   **ButcherSkillSequence**: Tracks the current stage of a Butcher unit's skill (`id`, `stage`). Used to manage complex skill sequences.
+*   **DruidForm**:  Indicates whether a Druid unit is in bear form or not (`id`, `isBear`). Used to track Druid's transformation state.
+*   **BarbarianTargets**: Tracks the target and damage dealt to the target for a barbarian unit (`barbarian`, `target`, `hitCount`, `totalDamageDealt`).
+*   **HealerTarget**: Stores which unit a Healer unit is bonded to (`healer`, `bondedTarget`). Used to manage healing connections.
+*   **PhantomleechManaDrain**:  Tracks how much mana a Phantomleech unit has drained (`id`, `manaDrained`). Used to control mana draining.
+*   **PoisonedUnits**:  Tracks the poison stack count on a unit (`id`, `poisonStack`). Used to apply poison damage over time.
+*   **PoisonDamage**: Offchain table. Marks the units which are posioned.
+*   **PomegranatePulverizer**:  Stores the position and state of a thrown Pomegranate Pulverizer item (`id`, `x`, `y`, `thrown`). Used for tracking projectile position.
+*   **InvincibleIcingIIITarget**:  Records the target unit for an Invincible Icing III item (`ownerId`, `target`).  Used to apply invincibility buffs.
+*   **SouffleSurgeTargets**:  Stores the targets for Souffle Surge item (`ownerId`, `itemType`, `targets`).  Used to heal specific units.
+*   **ChaosChocolateTargetLane**: Stores the lane where chaos chocolate is used (`ownerId`, `lane`). Used to buff a certain lane.
+*   **UnitDesign**: Tracks the performance of a unit in terms of damage dealt, damage healed, and mana gained (`id`, `damageDealt`, `damageHealed`, `manaGained`).  Used for unit balancing based on actual performance.
+*   **UnitTypeDesign**:  Aggregates the performance data for each unit type (`unitType`, `damageDealt`, `damageHealed`, `manaGained`). Used for balancing unit types.
+*   **Buildings**: Stores data of the buildings (`building`, `isTeamRight`, `totalResourcesStaked`). Building is the type of building, isTeamRight boolean value, and totalResourcesStaked is array of resource type that are staked.
+*   **VillageStructures**:  Stores the levels and types of structures built in a player's village (`player`, `level`, `structureType`). Used for village progression and resource generation.
+*   **Generators**:  Tracks the last time resources were collected from a specific generator building (`player`, `generator`, `lastTimeCollected`).  Used to manage resource generation timing.
+*   **Players**:  Stores player-specific data (`player`, `isTeamRight`, `lootboxes`, `ArmyGeneral`, `latestWarId`, `votingPowerSpent`, `warPrisoners`, `warPermitBalance`, `title`, `items`, `resources`, `units`, `ArmyCaptain`). Used to store players basic data.
+*   **Rewards**:  Stores the lootbox and battle reward balances for each player (`player`, `lootboxes`, `battleRewards`). Used to track rewards to be claimed.
+*   **Army**: Stores army data (`armyId`, `warId`, `armyState`, `captains`, `pendingInvitations`). Used to track army data.
+*   **CallToArms**: Stores CallToArms data (`captain`, `armyId`, `status`). Used to track the players which are invited and accepted army invitation.
+*   **Locations**: Stores map location data (`id`, `isSiegeLocation`, `isTeamRight`, `hp`, `maxHp`, `width`, `height`, `resource`, `tier`, `lastClaimVp`, `repairCostTier`, `mapType`, `neighbours`, `ongoingBattles`). Used to track locations data.
+*   **Artillery**: Tracks the stats of different artillery types like KebabRocket, MustardGas, FatMandarin. Stored for left and right team (isTeamRight). Also stores allocations for votes casted for different artillerys.
+*   **War**: Stores the information for a specific war (`warId`, `winnerTeamRight`, `startTime`, `leftVictoryPoints`, `rightVictoryPoints`, `warState`, `leftCapitalId`, `rightCapitalId`, `goldClaimed`).
+*   **WarStats**:  Stores aggregated statistics for a war (`warId`, `leftTreasury`, `rightTreasury`, `unitsBought`). Used for high-level war analysis.
+*   **PlayerContribution**:  Records a player's contributions to a war (`player`, `warId`, `gold`, `unitsPlaced`, `unitsBought`). Used to determine reward eligibility.
+*   **Siege**: Stores siege data (`warId`, `teamLeftVictoryPoints`, `teamRightVictoryPoints`). Used to track the siege progress
+*   **SiegeGoldSpent**: Stores the gold spent during a siege.
+*   **Battles**:  Stores information about a specific battle (`id`, `warId`, `winner`, `initTime`, `battleState`, `leftGateHp`, `rightGateHp`, `gateBleed`, `location`, `defenderUnitPlaced`, `attackingArmy`, `defendingArmy`, `leftReady`, `rightReady`, `publicDefenders`). Used to track battle data and state.
+*   **WarConfig**: Stores war configuration (`warId`, `battleId`). 
+*   **QuestRequirements**: Stores Quest requirements. Includes information about quest id, requirement, and next quests.
+*   **PlayerQuestProgress**: Tracks player progress in quest. Includes information about player, questid, progress, unlocked state, and completed state.
+*   **DailyQuests**: Tracks daily quest player progress. Includes information about player, questId, progress, and lastClaimed block timestamp.
+*   **RepeatingQuests**: Tracks repeating quests and progress.
+*   **QuestlineRewards**: Tracks questline rewards and experience.
+*   **LocationBattleFinished**: Stores Location battle finished event data.
+*   **KebabRocketLaunched**: Stores Kebab Rocket Launched event data.
+*   **MustardGasLaunched**: Stores Mustard Gas Launched event data.
+*   **FatMandarinLaunched**: Stores Fat Mandarin Launched event data.
+*   **PlanningPhase**: Stores Planning Phase event data.
+*   **BattlePhase**: Stores Battle Phase event data.
+*   **UnitSpawned**: Stores Unit Spawned event data.
+*   **UnitMoved**: Stores Unit Moved event data.
+*   **MeleeAttack**: Stores Melee Attack event data.
+*   **RangeAttack**: Stores Range Attack event data.
+*   **GateAttack**: Stores Gate Attack event data.
+*   **BarbarianDetonate**: Stores Barbarian Detonate event data.
+*   **BattleFinished**: Stores Battle Finished event data.
+*   **ProcessingUnit**: Stores Processing Unit event data.
+*   **IterationFinished**: Stores Iteration Finished event data.
+*   **PlayerDonated**: Stores Player Donated event data.
+*   **GeneratorResourcesCollected**: Stores Generator Resources Collected event data.
+*   **HealerSkill**: Stores Healer Skill event data.
+*   **ArcherSkill**: Stores Archer Skill event data.
+*   **SquireSkill**: Stores Squire Skill event data.
+*   **BombSkill**: Stores Bomb Skill event data.
+*   **BlockerSkill**: Stores Blocker Skill event data.
+*   **MageSkill**: Stores Mage Skill event data.
+*   **BarbarianSkill**: Stores Barbarian Skill event data.
+*   **AlchemistSkill**: Stores Alchemist Skill event data.
+*   **ButcherSkill**: Stores Butcher Skill event data.
+*   **ShamanSkill**: Stores Shaman Skill event data.
+*   **AssassinGateDamageIncrease**: Stores Assassin Gate Damage Increase event data.
+*   **AssassinSkill**: Stores Assassin Skill event data.
+*   **DruidSkill**: Stores Druid Skill event data.
+*   **DruidBuffs**: Stores Druid Buffs event data.
+*   **CannonSkill**: Stores Cannon Skill event data.
+*   **PhantomleechSkill**: Stores Phantomleech Skill event data.
+*   **EnergizingEspressoUsed**: Stores Energizing Espresso Used event data.
+*   **PlayerReceivedItem**: Stores Player Received Item event data.
+*   **ResurectionRaisinUsed**: Stores Resurection Raisin Used event data.
+*   **ApocalypticAppleUsed**: Stores Apocalyptic Apple Used event data.
+*   **GrenadeThrown**: Stores Grenade Thrown event data.
+*   **OneBlastBerryUsed**: Stores One Blast Berry Used event data.
+*   **ChaosChocolateUsed**: Stores Chaos Chocolate Used event data.
+*   **InvincibleIcingUsed**: Stores Invincible Icing Used event data.
+*   **SouffleSurgeUsed**: Stores Souffle Surge Used event data.
+*   **QuantumQuicheUsed**: Stores Quantum Quiche Used event data.
+*   **StomachBittersUsed**: Stores Stomach Bitters Used event data.
+*   **TabulaRiceUsed**: Stores Tabula Rice Used event data.
+*   **LootboxOpened**: Stores Lootbox Opened event data.
+*   **ReforgerUsed**: Stores Reforger Used event data.
+
+
+# What is Battle for Blockchain?
+Hey, welcome! We're a small team building crypto games. Our games run fully on smart contracts and offer the ability to play as if you were trading financial markets, with clearly defined PnL and ROI through your in-game action. Today, we are introducing you to our newest product that has been in the works for nearly 2 years, enjoy! - stokarz (Founder & CEO) 
+
+Battle for Blockchain is a fully onchain strategy game that blends the tactical depth of Teamfight Tactics with the empire-building of Total War. Command your forces, purchase units and upgrade your kingdom with $BFB tokens during intense weekly wars. 
+
+Each war, all $BFB tokens spent by the players are combined in 2 massive token pools. If your kingdom wins the war, you get all your $BFB tokens spent back and more. You can track your PnL and ROI in real-time for both scenarios: winning and losing the war. 
+
+At its core, Battle for Blockchain combines strategy thinking through gameplay with peer-to-peer financial markets:
+
+- Players make tactical decisions that directly influence their in-game, peer-to-peer market positions.
+- Every in-game action has a financial cost and a potential reward.
+- Our smart contracts set up the immutable rules of the gameplay, which anybody can verify at any time. This guarantees a fair payout if you win. 
+
+To learn more about the rules of the game, our in-game financial model, or the $BFB token flywheel, check out the rest of the docs. 
+
+## Requirements: 
+- BFB is a web-browser based game. Make sure your browser is up to date. We recommend using Google Chrome or Chromium-based browsers. 
+- Crypto wallet that supports EVM (Ethereum Virtual Machine) chains like Metamask, Rabby or Phantom. 
+- $INIT gas tokens bridged from the Inita L1 to Culinaris chain (our interwoven rollup). 
+- $BFB tokens bought on Initia L1 DEX and bridged to Culinaris chain. 
+
+### Why are we building crypto games? 
+Our team grew up playing video games 12h/day. Everything from classic MMORPGs like World of Warcraft and OSRS, through Start Craft II and Total War, to Leauge of Legends and TFT. We were fascinated with the eSport and streaming scene, which were both gated to the top 0.1%. They were making money, and unless we also joined this 0.1%, it was impossible that the time spent on gaming entertainment had any meaningful financial rewards. 
+
+Today, thanks to crypto networks and programmable money, we can change that. We can truly democratize this access once and for all. 
+
+Why fully onchain? To ensure the rules of the system that pays you money are enforcable, immutable (cannot be changed once you begin playing) and transparent. 
+
+As the in-game money, we use a $BFB token. Why call it "money"? Well, it's a money-equivalent, thanks to being directly exchangeable to $INIT (Initia's gas token), which then can be further exchanged to USD, at the market directed exchange rate. 
+
+# Lore
+## Forktown
+Forktown is home to a fierce, tribal society where strength determines status. These warriors live by a primal code, adorning themselves with battle trophies and favoring aggressive tactics. Despite their reputation for barbarism, Forktowners maintain a complex honor system, valuing loyalty to clan above all else. Their settlements of stone and raw timber reflect their pragmatic and unforgiving worldview.
+### King
+The legendary King Bunfork leads Forktown through sheer dominance, having challenged and defeated all who once questioned his right to rule.
+
+## Spooncity
+Spooncity stands as a testament to years of cultural and architectural achievement with its gleaming spires and grand plazas. This sophisticated society is governed by ancient traditions and ceremonial protocols, producing scholars, artisans, and disciplined soldiers who fight with precision rather than fury. Spooncity's military relies on superior strategy and advanced weaponry developed in prestigious academies, while their influence extends through diplomacy and cultural refinement.
+
+### King
+King Spoonbun embodies Spooncity's refined ideals, his calculated decisions and patronage of the arts cementing his legacy as a visionary monarch.
+
+# BFB TOKEN
+## In-Game Utility
+Hey guys, stokarz here again. 
+
+Throughout the docs I mention how the economic model inside BFB works. Here, I will give you a coherent short description, and a practical example, illustrating its functionality to best of my simplification abilities. 
+
+Here is what we did: we took the exchange model, well known from crypto, and applied it to games. Why? Becuse all the previous models like Play-to-earn were unsustainable, and resulted in a catastrophic breakdowns of the in-game economies. As we plan to build games that last decades, we needed something better. 
+
+Introducing a peer-to-peer token pooling & redistribution based on your in-game performance. 
+
+Okay, this is how we might have finished our explanation if we were talking to some fancy VCs from New York. The suit guys who do not really care about onchain apps, but the story they will tell their LPs. Let me find an even simpler explanation! 
+### Playing games as if you were trading on perpetual exchange - introducing PnL 
+#### Practical example — Bob plays BFB
+This is Bob (there is no Alice in this story, sorry, she ran off after being defeated). Bob, like everybody else, wants to win. Oh and if that's possible, he wants to win a lot, and also help his friends win a lot. He understood that he doesn't have any edge farming airdrops or trading memecoins, so he seeks new opportunities. 
+
+Bob starts playing BFB. He has his in-game wallet filled with $INIT to pay the gas fees, and some $BFB tokens, which he will be spending in the game on various actions. 
+He buys some units: Roe, Potano, and 14 Snoodles. He spent 1,600 BFB tokens in the Unit Shop. 
+
+Say there is only Bob in the Forktown throughout the whole war. And his total contribution was just this single battle, where he spent 1,600 BFB tokens. On the other side, seems like Alice has finally returned, and she fought Bob again. 
+
+She spent a total of 1,600 BFB tokens, buying Hechoys (which were priced higher) and Kabangos. As one might expect, she lost. For the sake of this simplified example, we will use the 20% rate from the Siege.
+
+Bob's position: 1,600 BFB tokens. 
+
+Bob's ROI: 20% or 320 BFB tokens. 
+
+Alice's position: 1,600 BFB tokens. 
+
+Alice's ROI: -20% or  320 BFB tokens. 
+
+In this example, we've showcased how the token pools work in Battle for Blockchain, and where the yield comes from (from Alice losing BFB tokens, and Bob winning them). Was there something Alice could have done better? Yeah, she might have won by placing better strategies on the battlefields. Being more strategic in her attempts to conquer particular zones. Or simply attacking more, and getting her friends to join her in the Spooncity and attack. If that happens, the token pool during the war will increase rapidly, incentivizing Bob to do the same.
+
+We honestly love this model, and hope you will like it too. 
+### Spending BFB tokens - what counts towards your PnL? 
+- Buying units in the Unit Shop*
+- Upgrading units in your Kingdom
+Note*: all the units must be placed on the battlefield before the war ends. Those that weren't placed won't count towards your PnL calculations. Why? Because if they counted, you would join the war minutes before the siege, buy shitton of units, and guarantee the positive payout. 
+
+Disclaimer (!): If you are adding BFB tokens to the Kingdom to upgrade the units, to get the rewards from the PnL system at the end of the war, you need to play AT LEAST 1 BATTLE, and place the units on the battlefield.
+
+Spending BFB tokens on Bentoboxes in Lady's Tartella shop doesn't count towards your PnL. These tokens are taken back from the "active" circulation and allocated towards BFB/INIT LP. We basically take the INIT tokens we earn from the sequencer revenue on our chain, and BFB tokens spent by the players in the Bentobox shop, and increase BFB/INIT LP position on Initia's L1 native DEX. Cool huh? 
+### BFB Token - Flywheel & Bullcase
+Now when you are familiar with how the BFB token model works, and how the money flows through the system, imagine it at scale. Hundreds or thousands of active players participating in the war, each adding their tokens to the overall token pool. Increasing the stakes for everybody involved. Temperature rising, each battle growing in importance, each zone becoming even more valuable for each kingdom. 
+
+The best part? More stakes means bigger ROI, means larger incentives, means more people willing to play and win their share. And they will all need to hold and use BFB tokens to do that. 
+
+## Token Info & Sale
+Ticker: $BFB
+
+Total Supply: 1,000,000,000 $BFB
+
+Available Supply at Launch: 910,000,000 $BFB
+
+Vesting: 1 year vesting for the team, locked in the smart contract.
+### BFB Token Presale - Golden Spoons, Golden Forks, Golden Plates
+Available to Golden Spoons, Golden Forks, and Golden Plates holders. Presale checker will go live on 30th April. 
+
+Allocated spots: 2,000
+
+Fully Diluted Valuation: 1,000,000 USD
+
+Max Buy: 250 USD*
+
+*(in $INIT tokens. BFB/INIT ratio to be decided at the time of the presale, based on the INIT/USD price). 
+
+You will need $INIT tokens bridged to our BFB chain to participate in the presale. You will have to use the EVM wallet you've used to log-in to the game on our testnet. If you logged in with an email, click export wallet, and export your in-game wallet to ex. Metamask, Phantom, or Rabby. For bridging $INIT tokens to BFB chain, use the official Initia's bridge. 
+
+Don't worry, we will have a step-by-step guide for you ahead of the presale, explaining how to get through this process easily. 
+
+If you hold a Golden Plate + Golden Fork, you can buy 500 USD worth of $BFB tokens in the presale. 
+
+If you hold a Golden Plate + Golden Fork + Golden Spoon, you can buy 750 USD worth of $BFB tokens in the presale. 
+
+Presale checker will go live on our website 5 days prior to the presale, ensuring everybody can check their allocations. $BFB tokens bought in the presale will be immediately tradable and transferable after the LBP public sale ends. Unsold presale tokens will be moved to the LBP public sale. 
+
+### BFB Token Public Sale - Liquidity Bootstrapping Pool (LBP)
+Update: After the Presale, 40.1% of tokens will be auctioned via the LBP mechanism, publicly on Initia's L1. 
+
+A significant amount of LBP will turn into the BFB/INIT LP on Initia's L1 native DEX. Allowing players to seamlessly trade BFB for INIT tokens, bootstrapping our economy. The rest of the funds will be used towards the future development. The first new thing we want to introduce to BFB is items' marketplace, allowing you to trade items you get from Bentoboxes with other players.
+
+To learn more about LBPs, and how exactly they work, please refer to: https://balancer.gitbook.io/balancer-v2/products/balancer-pools/liquidity-bootstrapping-pools-lbps
+
+Tokens unsold in the LBP will be allocated toward the Community token pool, which will serve two purposes: 
+
+Allocate tokens toward the in-game Battle Rewards, incentivizing longterm ecosystem growth. 
+
+Distribute BFB tokens via the claim-drop post the LBP, to our longterm community supporters, who were supporting us since 2022 when we started as a studio. Stay tuned for more info after the LBP and mainnet launch! 
+
+For information on the Market Cap and FDV for the LBP - stay tuned. We'll release these details closer to the launch date
+
+# Game Basics
+## Units
+A unit is the fundamental building block of the Battle for Blockchain universe. All BFB mechanics revolve around units, forming the foundation for more complex interactions. Whether you're waging battles, increasing your exposure, or striving for victory, units are the primary tools that drive every aspect of the game.
+
+### Unit
+A unit is a foodie hero that fights by your side and follows your commands. To acquire one, you'll need to purchase it from the Unit Shop using $BFB. Once owned, the unit will patiently wait in your inventory, ready for action.
+
+Units come in all shapes and sizes, each with a unique stat composition and a powerful skill—a special ability that charges over time and can turn the tide of battle.
+
+To launch an attack or defend against one, you’ll need to deploy your units. The battlefield supports either 16 or 20 units per side, meaning you'll need the full required amount to participate in a match.
+
+### Stats
+Units are described with different stats, which affect their fighting capabilities. These stats are:
+
+Melee Damage - The amount of damage a unit deals in close-quarters (hand-to-hand) combat.
+Range Damage - The amount of damage a unit deals when attacking from a distance.
+Health - The total number of hit points a unit has.
+Might - The damage a unit deals to the enemy Commander if it reaches the opposing side of the battlefield.
+Critical Chance - The percentage chance an attack has to become a critical strike.
+Critical Damage - The percentage increase to damage dealt when an attack is a critical strike.
+Range - The distance a unit can attack. A range of 1 is considered melee.
+Starting mana - The amount of mana a unit begins with at the start of battle.
+Mana regeneration - The amount of mana a unit gains at the start of its turn.
+
+Units also have stats connected with their unique abilities.
+
+### Unit Behavior
+When a battle begins, units follow a strict set of rules and conditions in their actions:
+
+Mana Regeneration – The unit regenerates mana at the start of its turn.
+Skill Activation – If the unit has enough mana to use its ability—and using it is considered reasonable*—it will cast its skill.
+Ranged Attack – If the unit did not cast its skill and has a ranged attack, it will perform a ranged attack.
+Melee Attack – If the unit did not cast its skill, is not ranged, and has a target in melee range, it will perform a melee attack. If the melee attack eliminates the target and the space ahead becomes empty, the unit will move forward into that space.
+Movement – If the unit cannot attack and the space in front is empty, it will move forward.
+Damaging Vigor – If the unit reaches the last available space on the battlefield, it will sacrifice itself to deal damage directly to the enemy Commander.
+These are the general rules of engagement. Certain exceptions may apply—for example, effects caused by items or special mechanics.
+*game checks various conditions to deem skill reasonable. Units won't cast skill if they do not have a target, Hechoy won't heal if there is nothing to heal, Roe won't teleport until he can.  
+### Unit Shop
+The Unit Shop is where you can restock your unit inventory. However, unit prices are not fixed—they change gradually over time. This is because the unit market is shared among all Battle For Blockchain players, and prices are driven by supply and demand dynamics.
+
+### Units Basket
+Unit pricing in Battle For Blockchain is based on the concept of the Units Basket. This system ensures that purchasing 14 different units should always cost a total of 1400 $BFB. As a result, fielding a well-balanced 16-unit army should typically cost around 1600 $BFB.
+
+### Supply / Demand
+Each interaction with the Unit Shop leaves a lasting impact on unit pricing. When you buy a unit, its price increases by 13Δ, where Δ is a constant value, while the price of every other unit decreases by 1Δ. This way, purchasing one of each unit results in a net price change of zero.
+
+And remember—the market is shared among all players. When one player buys a Kabango, its price increases for everyone.
+
+This system also acts as a natural balancing mechanism. Stronger units tend to be more popular, which drives up their prices relative to others. That makes them riskier to buy compared to cheaper, less-picked units—encouraging players to build a mix of both.
+
+### Unit Levels
+Units can also be leveled, which is closely described in the Upgrades section.
+
+## Types
+Whether you need a hefty frontline, sturdy supports or sneaky assistants, Battle For Blockchain offers a vast array of units that will help you with your tasks. To achieve victory, you will need to get accustomed to each of the available heroes, as each battlefield might require a unique approach.
+
+### Kabango
+Sugar bomb incarnate. Though very brittle, Kabango is the biggest threat one can meet in a battle. He doesn't offer much in defense nor offense, however he can use his exceptional might to singlehandedly win the entire battle.
+
+On Skill, Kabango enhances the luck of his adjacent allies, increasing their Critical Strike chance and effectiveness.
+
+### Rootguard
+When you need the strongest defense, Rootguard comes to your aid. With one of the highest health stats, he’s the steadfast frontliner you can rely on. And when the moment is right, he unleashes a powerful surprise on his enemies.
+
+On Skill, Rootguard deflects incoming attacks, nullifying their damage and striking back with equal force.
+
+### Gunmak
+Once your frontline is secured, Gunmak is the obvious next choice. Wielding his mighty cannon, he blasts his way through enemies with ease. Even if his target hides behind allies, Gunmak’s cannon can still reach them.
+
+On Skill, Gunmak releases a powerful wave of shots, reaching three enemies in his row. 
+
+### Snoodle
+A brave young Snoodle is the cornerstone of every army. With solid defenses and a devastating splitting tool, he can dish out serious damage. He's the most well-rounded unit of the bunch.
+
+On Skill, Snoodle splits his weapon in two, attacking diagonally with some additional power. 
+
+### Hechoy
+Not all heroes are meant to deal damage on the battlefield. Some are there to heal wounds and support their allies. Hechoy is always ready to help her friends, even from afar.
+
+On Skill, Hechoy heals her target and all adjacent allies. If no target is selected, she heals herself and those nearby. The healing on the primary target is enhanced.
+
+### Boilix
+Boilix scours the schools of magic in search of the key to ultimate fiery destruction. Will he ever find it? No one knows. But for now, he channels his knowledge to unleash chicken-chaos upon his foes. He thrives on lucky shots—each critical hit greatly enhances his power.
+
+On Skill, Boilix taps into his full potential, delivering a guaranteed critical strike to his target. He also has a chance—equal to his critical strike chance—to deal additional damage to adjacent enemies.
+
+### Hamgar
+Hamgar believes in one thing: brute force. Though he begins calmly, each strike stokes the fire within him, steadily increasing his power. And when he falls, he always makes sure to have the last word.
+
+Hamgar has no active skill. Instead, his attacks deal bonus damage based on the opponent’s max health. With every hit, he increases the damage dealt to that specific target—this bonus resets when he switches targets.
+
+Upon death, Hamgar channels all his built-up rage into a devastating final strike against the enemy Commander. The damage is based on the total damage he inflicted throughout his life.
+
+### Mushie 
+These two little friends are inseparable—literally. Their magical mushrooms soar across the battlefield, energizing allies and poisoning foes. Focused entirely on support, they won’t be much help when the fighting gets too close.
+
+On Skill, Mushie launches four mushrooms, one in each cardinal direction. When a mushroom hits an ally, it restores a bit of their mana. When it hits an enemy, it applies poison. At the start of the enemy’s turn, they lose a bit of health—this effect stacks.
+
+### Waxon
+Waxon loves to stir things up. He’s the clingy type—once he latches onto you, trouble’s not far behind. With sturdy defenses and a relentless focus, he picks his prime target and pulls them in, bit by bit, just to deliver a crushing blow.
+
+Waxon’s skill unfolds in three distinct stages:
+Waxon chooses his target and brings it closer to him
+Waxon pulls the same target into the melee range
+Waxon calls for the holy power of honey, smiting his foe into dust
+After each stage, Waxon heals himself for a portion of his health. If the sequence is broken, is starts from the beginning. 
+
+### Potano
+Master of versatility. Potano carefully balances the forces of earth and storm, to create the most efficient combination possible. Useful both at range and in melee, he will always find a way to fit in. 
+
+Potano has two modes:
+Storm - Potano gains the powers of the storm, gaining some range and range damage, and now steals opponents mana with each hit
+Earth - Potano draws the force of lava, increasing his melee potential, as well as dealing extra damage based on opponents health
+On Skill, Potano changes between Storm and Earth.
+If placed on the frontline, Potano starts in the Earth stance. If not, he will start in the Storm stance. 
+
+### Roe
+The sneakiest of the bunch, Roe waits in silence for the perfect moment. And when it comes, he strikes with deadly precision. He won’t last in a fair fight—but then again, he never planned to fight fair.
+On Skill, Roe jumps between two enemy units. Then, he strikes the second unit with devastating force.
+If there is no opportunity, he waits calmly until it arises.
+Additionally, each kill Roe gets increases his Might substantially.
+
+### Brocco
+Brocco’s volatile nature might just be the reason he exists at all. He prides himself on his ability to hold the line, shifting seamlessly between offense and defense. The spirit of the bear mends wounds of the past, while the spirit of the wolf stirs fury within Brocco’s allies.
+
+Brocco has two forms:
+Spirit of the Bear - After each attack, Brocco heals himself, as well as allies above and below him
+Spirit of the Wolf - After each attack, Brocco enhances his damage, as well as allies above and below him
+
+### Lager
+Lager fights for one reason only: because he enjoys it. Keeping his distance, he douses enemies in foamy bursts of beer. Serving as the army’s artillery, no one is safe once he starts making it rain. Just don’t count on pinpoint precision—accuracy isn’t exactly his strong suit.
+
+On Skill, Lager unleashes a wild salvo of shots, targeting random enemies across the battlefield—distance is no obstacle. Each shot, however, carries a small chance to miss its mark entirely.
+
+### Dorayaki
+Dorayaki’s goal is simple: outlast you. Slowly but surely, he drains the life energy from your forces and channels it into devastating attacks aimed at your Commander. It’s a slow process—but highly effective.
+
+On Skill, Dorayaki drains mana from enemies in front of him, storing it in a separate pool. Once enough has been gathered, he converts that stored mana into direct damage against the enemy Commander.
+
+
+## Upgrades
+Battle For Blockchain lets players further customize their experience in a collaborative way through Kingdom Upgrades. In this system, players can donate resources earned in battle to invest in specific units, enhancing their capabilities for everyone in the Kingdom.
+
+View detailed information about unit upgrade costs and their benefits in the Kingdom Upgrades tab in-game. 
+
+### Shared Experience
+What makes this system unique is that upgrades are shared among all players within a Kingdom. Players must strategize together—deciding which units to prioritize and which to leave behind—shaping kingdom-wide tactics. However, these upgrades are contained within each Kingdom. Other Kingdom might focus on completely different units, leading to diverse strategies and dynamic conflicts. In Battle For Blockchain, battles unfold not only on the battlefield, but also within the ever-shifting unit market.
+
+### Collaborative Work
+Upgrading units is costly—too costly for a single player to handle alone. It requires the collective effort of an entire Kingdom. Players must collaborate, using various means of communication, to align on a shared strategy and decide which units to prioritize for the war effort.
+
+### Enhancing Units
+Units can be upgraded from base level 0 up to level 9. With each level, they gain a small boost to health and overall stats. Notably, at levels 3, 6, and 9, key stats tied to their abilities receive significant enhancements, making these milestones especially impactful.
+
+A level 9 unit is vastly more powerful than its base version and often highly sought after. However, this power comes at a cost—its market price will rise significantly, making it a more financially risky choice. Players must be careful not to over-upgrade a unit, as it may become too expensive to field effectively.
+
+## Items
+Items are a powerful tool that let you fully customize your army. Placing the right units in the right positions is important—but enhancing them with the right boosters can be the decisive factor in battle. Battle For Blockchain offers a wide variety of Items, each suited for different situations and strategies, giving players even more control over the outcome of a fight.
+
+### Bentobox
+To get items, you will need Bentoboxes. Among the many rewards you receive after a Battle, Bentoboxes are one of them. Bentoboxes, like Items, are permanent, so they won't be wiped after the war.
+
+### Lady Tartella's Shop
+Lovely Lady Tartella is always ready to prepare you a warm meal. At this magnificent shop, you can spend $BFB to convert your Bentoboxes into Items. Each Bentobox always provides you with 4 items.
+
+### Item Types
+Items are split into 4 rarities, with different odds to get them:
+
+Common - ~55.1%
+Uncommon - ~27.5%
+Rare - ~13.8%
+Epic - ~3.5%
+
+Some items are completely unique, like Bitter Sweet Blend, and others have a couple of versions in different tiers, like Chili Chopper. Usually, the higher the rarity, the stronger the item. Items of Epic quality can change the entire course of a battle.
+
+There are two exceptions to this rule - Stomach Bitters and Tabula Rice. These items cannot drop from a Bentobox, and are mostly utility items.
+
+## Battles
+### Battle
+To wage war, players must launch attacks and defend against them. Each such action initiates a battle, where two sides clash on the battlefield—and within minutes, fate determines the victor.
+
+Battles can be fought solo in a 1v1 format or cooperatively, by inviting a friend to join your army and share the cost of war.
+
+The size of the battlefield and the health of the Commanders depend on the Zone selected by the attacker. The battlefield is always evenly divided, giving both sides equal space to fight. Each side will have a grid of either 4×5 or 4×4 tiles.
+
+Players must then place their units strategically, considering synergies between different characters and using items to craft the most effective tactics. When the time comes, the battle begins, the board is set—and the outcome is soon revealed.
+
+### Timers
+The first timer begins when the attacker initiates a battle, triggering a search for a defender. If no defender joins within 3 minutes, the attacker is granted a free victory. This system encourages players to participate as both attackers and defenders, helping to prevent easy wins for opponents.
+
+Once a defender responds and accepts the battle, the timer resets to 3 minutes—giving them fair time to prepare and deploy their strategy.
+
+To discourage last-second placements, a few extra seconds are added to the timer for each unit placed when less than 30 seconds remain.
+
+Items must be equipped before the battle begins.
+
+When both players mark themselves as ‘Ready’—or when the timer runs out—the battle can commence.
+
+### Processing
+Since Battle For Blockchain is a fully on-chain game, each battle must be processed through blockchain transactions. With each transaction, one unit from each team is processed—executing all available actions for that turn. The attacker’s unit acts first, followed by the defender’s.
+
+At the start of the battle, all units are placed into a fixed action queue. This queue is determined from bottom to top, starting from the center lane and moving outward to the edges of the battlefield. Once a unit is assigned its position in the queue, it keeps that position until it dies. When a unit is eliminated, the queue shifts to remove empty spots, keeping the turn order continuous and efficient.
+
+### Goal
+The goal of battle is to inflict as much Might Damage as possible to the enemy’s Vigor. To achieve this, players must deploy high-Might units and support them with complementary allies. This is especially crucial for attackers, who benefit from winning by the widest margin possible.
+
+During battle, units automatically advance toward the enemy’s side of the battlefield. Upon reaching it, they deal damage to the opponent’s Vigor based on their Might. Some units also possess special abilities that allow them to inflict damage before reaching the end of the battlefield.
+
+### War Permit
+To ensure that war is waged with honor and dignity, players must complete their War Permits before entering battle. These permits serve as collateral against unsportsmanlike conduct. When a battle begins, the game checks for any empty spaces on the player’s side of the battlefield. For each unfilled space, 500 $BFB is deducted from the player's War Permit.
+
+### Result
+A battle ends when either one player’s health reaches zero or when there are no units left on the battlefield. At that point, the remaining health of both players—referred to as Vigor—is compared. The player with more Vigor is declared the winner.
+
+If the attacker wins, the attacked Zone loses Health equal to the defender’s maximum health in that battle, minus the defender's remaining health at the end.
+If the defender wins or the battle ends in a tie, the Zone’s Health remains unchanged.
+
+Regardless of the outcome, both players receive rewards, including $BFB, Bentboxes, and resources.
+
+## Example Armies
+### The Funnel
+With this army we try to double down on a single lane, while other lanes are supporting it. Our main lane consists of Hamgar, Dorayaki, Roe and Hechoy - it is built to deal as much damage as possible. Other lanes purpose is to stay alive for as long as possible, while helping the main lane do its job. 
+
+### The Sacrifice
+In this combination we are using a quite underestimated item - Ginger Zest Rush. It increases your damage every turn, but burns a bit of your health in exchange. We place these items on Hechoy's, as their healing outpaces this item, turning a support character into a proper fighter. Moreover, we can enhance our Hechoy's with Kabango's, which will increase it's crit chance and damage. But Kabango's placed like that would be quite a weak choice, so we buff them with Hearty Broths to increase their health pool.
+
+### The Gambit
+The Gambit needs two items to work - Apocalyptic Apple and Licorice Leap. Apocalyptic Apple, placed on the Brocco will wipe the entire top lane. Then, Kabango will try to move upward. As he cannot do that, he will move up and have a free path to victory.
+
+In this war, units used in the top lane were cheap, as we just need them to get killed from Apocalyptic Apple. On the other lanes, we want something secure, that won't get attacked by other high-might units.
+
+## War
+All actions in Battle For Blockchain revolve around a singular purpose: winning the war—the grand conflict that has drawn the finest warriors to the lands of Culinaris. Through strategic movement across the map, players conquer territory and accumulate Victory Points. Once a player asserts enough dominance, a Siege is triggered, marking the final chapter of the war.
+
+### Zones
+Players battle for control over the region of Culinaris, which is divided into 24 distinct Zones. They can launch attacks to capture these Zones or defend them against incoming assaults from the opposing kingdom.
+
+Each successful attack reduces a Zone’s HP. When a Zone’s HP reaches zero, control shifts to the opposing kingdom, and the Zone’s HP is fully restored.
+
+Zones can be of two sizes:
+Small - Battlefields size is 8x4 (split into a 4x4), and Zone HP equals to 16000.
+Large - Battlefields size is 8x5 (split into a 4x5), and Zone HP equals to 20000. 
+Each Zone also favors a specific resource. Battling in that Zone grants increased rewards of its favored resource after the battle.
+
+### The Goal - Victory Points
+The primary objective of each war is to accumulate a set amount of Victory Points (VP). The first kingdom to reach this target is declared the winner, triggering the Siege and bringing the war to its final stage.
+
+Each Zone generates a fixed amount of Victory Points over time. Some Zones yield more, while others produce less. However, Victory Points must be claimed from each Zone to count toward the victory condition. When a Zone changes hands, its unclaimed VP is automatically awarded to the new controlling kingdom.
+Additionally, a few special Zones generate different amounts of Victory Points depending on which kingdom controls them, adding an extra layer of strategic depth to the war.
+Forktown Perimeter (Picklestadt, Avocadia, Ovenburg, Radish Mine) will produce double VP, if Spooncity holds these Zones.
+Spooncity Perimeter (Frogwise Summit, Sweetly, Citrus Sanctum, Teaton) will produce double VP, if Forktown holds these Zones.
+
+### Repairing
+The defense of a Zone can be extended through repairs, allowing players to restore its HP by spending resources. The type of resource required depends on the Zone’s favored resource.
+
+If the Zones favors:
+Wood, then you will need Stone to repair it
+Stone, then you will need Iron to repair it
+Iron, then you will need Wood to repair it
+
+The first repair costs 100 of the relevant resource. Each subsequent repair increases the cost by 100. However, when control of the Zone changes, the repair cost resets back to 100.
+
+### Siege
+Siege specific are written in its own section.
+
+### Grand Reset
+When one war ends, another begins. Between them lies The Grand Reset—a moment of renewal where much of the world is wiped clean to ensure a fair start for the next great conflict.
+
+What will be reset:
+Players’ unit inventory
+Players’ resources
+Players’ teams (yes, you can switch sides—and betray your kingdom!)
+Unit prices
+Kingdom upgrades
+Zone health
+Zone ownership
+
+What remains permanent:
+Players’ item inventory and bentoboxes
+Players’ $BFB
+Players’ quest progress
+
+## Siege
+When a single kingdom gathers enough Victory Points, it is declared the winner of the war. Their rewards are secured—but the battle isn't over just yet. One final prize remains: the capital, glittering with untouched $BFB, waiting to be claimed by the victorious besiegers.
+
+### Rules
+The winner of the war initiates a siege against the losing kingdom, aiming to breach the capital and claim the vault hidden deep within its walls. As a reward for winning the war, the victorious kingdom is refunded all the $BFB it spent during the conflict and receives 20% of the opposing kingdom's treasury, to be distributed among its players. However, by successfully besieging the capital, they can earn much more than that.
+
+The Siege follows the same core rules as the regular war—zones (now representing city districts) must be conquered and held to generate Victory Points (VP). However, the objectives differ for each side:
+
+Defenders must reach 100 VP. Once they do, the siege ends immediately.
+
+Attackers aim to prolong the siege and gather as much VP as possible. Reaching 100 VP does not end the siege for them. Instead, for every 3 VP earned beyond 100, the attackers claim an additional 1% of the enemy's treasury, up to a maximum of 50%. The siege ends when attackers reach 200 VP.
+
+Once the siege concludes, the $BFB is redistributed among players based on their contributions—and a new war begins.
+
+### Siege Pool
+So, you might be wondering—what happens to the $BFB spent during the siege?
+To prevent a situation where attackers wage war for free, or defenders feel discouraged from participating after already losing, a special Siege Pool has been created.
+
+Every $BFB spent during the siege—by both attackers and defenders—is collected into this pool. It doesn’t disappear. Instead, it’s carried over to the next war, where it will be added to the winnings of the next war’s victors.
+This ensures every siege matters—not just for glory, but for building the stakes of the next great conflict.
+
+## Quests
+Players can also take part in daily activities that reward them with a standardized set of valuable items. Each quest encourages a different type of interaction with the game, and as a token of appreciation, players may receive:
+Bentoboxes – Mysterious containers that can be opened at Lady Tartella’s Shop for random rewards.
+Tabula Rice – A tactical consumable that lets you swap a unit on the battlefield for a different one.
+Stomach Bitters – Potent drops that remove an item from a unit, freeing it up for new strategies.
+Reputation Points – A symbol of your influence in the lands of Culinaris. These points may be used in the future for a variety of purposes.

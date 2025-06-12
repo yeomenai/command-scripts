@@ -1,0 +1,164 @@
+{
+    "version": "1.1.1",
+    "name": "Attack Strategy",
+    "description": "Attack Strategy",
+    "category": "Battleforblockchain",
+    "imageUrl": "",
+    "formFields": [
+        {
+            "id": "cooldownDelay",
+            "type": "number",
+            "label": "Attack Cooldown Time (in seconds)",
+            "placeholder": "Enter time between attacks in seconds",
+            "required": true,
+            "value": 60
+        },
+        {
+            "id": "attackLocationId",
+            "type": "select",
+            "label": "Location to attack",
+            "placeholder": "Please select location to attack",
+            "required": true,
+            "plugin": "select2",
+            "options": [
+                {
+                    "value": 1,
+                    "label": "PICKLESTADT"
+                },
+                {
+                    "value": 2,
+                    "label": "AVOCADIA"
+                },
+                {
+                    "value": 3,
+                    "label": "OVENBURG"
+                },
+                {
+                    "value": 4,
+                    "label": "RADISH MINE"
+                },
+                {
+                    "value": 5,
+                    "label": "FRUITY CREEK"
+                },
+                {
+                    "value": 6,
+                    "label": "SALAD PLAINS"
+                },
+                {
+                    "value": 7,
+                    "label": "CHOPSHIP"
+                },
+                {
+                    "value": 8,
+                    "label": "PEACHTREE SHRINE"
+                },
+                {
+                    "value": 9,
+                    "label": "POT CAVERN"
+                },
+                {
+                    "value": 10,
+                    "label": "FALLEN UTENSILS"
+                },
+                {
+                    "value": 11,
+                    "label": "DRAGONFRUIT LAIR"
+                },
+                {
+                    "value": 12,
+                    "label": "SRIRACHA ICELAND"
+                },
+                {
+                    "value": 13,
+                    "label": "SPIKY EDGE"
+                },
+                {
+                    "value": 14,
+                    "label": "CARAMEL GROTTO"
+                },
+                {
+                    "value": 15,
+                    "label": "SUNDAE DELIGHTS"
+                },
+                {
+                    "value": 16,
+                    "label": "SPOOKY NUT"
+                },
+                {
+                    "value": 17,
+                    "label": "FUNGI DEN"
+                },
+                {
+                    "value": 18,
+                    "label": "PEPPERCANO"
+                },
+                {
+                    "value": 19,
+                    "label": "SPOREWOODS"
+                },
+                {
+                    "value": 20,
+                    "label": "GRAND BROCCOLI"
+                },
+                {
+                    "value": 21,
+                    "label": "FROGWISE SUMMIT"
+                },
+                {
+                    "value": 22,
+                    "label": "SWEETLEY"
+                },
+                {
+                    "value": 23,
+                    "label": "CITRUS SANCTUM"
+                },
+                {
+                    "value": 24,
+                    "label": "TEATON"
+                },
+                {
+                    "value": 1001,
+                    "label": "GATE I"
+                },
+                {
+                    "value": 1002,
+                    "label": "GATE II"
+                },
+                {
+                    "value": 1003,
+                    "label": "GATE III"
+                },
+                {
+                    "value": 1004,
+                    "label": "INNER CITY I"
+                },
+                {
+                    "value": 1005,
+                    "label": "INNER CITY II"
+                },
+                {
+                    "value": 1006,
+                    "label": "THRONEROOM"
+                }
+            ]
+        },
+        {
+            "id": "spawnUnits",
+            "type": "text",
+            "label": "Enter units to spawn based on position(comma separated)",
+            "placeholder": "Enter the  units to spawn",
+            "required": true,
+            "value": "Kabango, Rootguard, Gunmak, Snoodle, Lager, Dorayaki, Lager, Snoodle, Dorayaki, Roe, Lager, Dorayaki, Lager, Snoodle, Dorayaki, Roe, Lager, Dorayaki, Lager, Snoodle"
+        },
+        {
+            "id": "spendingCap",
+            "type": "number",
+            "label": "Spending Cap (Limit)",
+            "placeholder": "e.g. 1000",
+            "required": true,
+            "value": "1000"
+        }
+    ],
+    "mainScript": "index.js"
+}

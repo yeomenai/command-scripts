@@ -1,0 +1,9 @@
+{
+    "version": "1.1.1",
+    "name": "Bento Boxes",
+    "description": "Automatically open all unopened Bento Boxes in the player's inventory",
+    "category": "Battleforblockchain",
+    "imageUrl": "",
+    "formFields": [],
+    "mainScript": "index.js"
+}
